@@ -1,6 +1,6 @@
 > Trabajo práctico de Sistemas Operativos Avanzados
 # Smart Pool
-## Descripcion
+## Descripción
 Solución para automatizar y gestionar los procesos de una piscina, permitiendo a los usuarios controlar el ciclo de filtrado y las luces RGB de forma remota a través de una app. El sistema realizará únicamente filtrado por la toma de fondo, mientras que el usuario podrá realizar desagote manualmente con instrucciones proporcionadas a través de la app.
 
 Para el desarrollo se utilizara la placa Arduino UNO.
@@ -19,15 +19,18 @@ Para el desarrollo se utilizara la placa Arduino UNO.
 
 ### Circuito Electrónico
 #### Circuito completo:
- [Simulación del circuito en Thinkercad](http://handlebarsjs.com/)  [En desarrollo]
+ [Simulación del circuito en Thinkercad](http://handlebarsjs.com/)  _[En desarrollo]_
  #### Ejemplos de los sensores en thinkercad:
  TBD
- [s1](link 1)
- [s2](link 2)
- [s3](link 3)
+ 
+ _[s1](link 1)_
+ 
+ _[s2](link 2)_
+ 
+ _[s3](link 3)_
 
 ### Desarrollo del SE
-En este repositorio se encontraran los archivos que corresponden al código fuente del sistema embebido, siguiendo el patrón de diseño (-máquina de estados, a definir-).
+En este repositorio se encontraran los archivos que corresponden al código fuente del sistema embebido, siguiendo el patrón de diseño _(máquina de estados, a definir)_.
 
 ### Informe
 [link al informe](https://docs.google.com/document/d/1_LNlBqL6A76YgOMo5v6x_5xJuPPDEOqsAeQZE0QdtuY/edit)
