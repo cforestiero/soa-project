@@ -7,9 +7,8 @@ Para el desarrollo se utilizara la placa Arduino UNO.
 
 ### Sensores:
 - Sensor de Temperatura del Agua: Monitorea la temperatura del agua de la piscina para ajustar los ciclos de filtrado según las condiciones climáticas.(esto pasa porque en verano si la pileta queda 1 dia tapada, tenes mucha agua caliente en la superficie que no se mezcla con la del fondo)
-- Sensor de Nivel de Agua: Detecta el nivel de agua en la piscina y proporciona información sobre el estado del sistema de filtrado y bombeo.(Por si ocurre que el nivel por X motivo es bajo y al querer filtrar o desagotar entra aire a la bomba y la quema)
+- Sensor de Nivel de Agua (Sensor de distancia por ultrasonido (HC-SR04)): Detecta el nivel de agua en la piscina y proporciona información sobre el estado del sistema de filtrado y bombeo.(Por si ocurre que el nivel por X motivo es bajo y al querer filtrar o desagotar entra aire a la bomba y la quema)
 - Sensor de Luz Ambiental: Permite ajustar la intensidad y el color de las luces RGB(LED) de la piscina según las condiciones de iluminación ambiental.
-- Sensor de distancia por ultrasonido (HC-SR04)
 
 ### Actuadores:
 - Bomba de Filtrado: Se activa para iniciar y detener los ciclos de filtrado a través de la toma de fondo, basándose en la programación configurada por el usuario a través de la aplicación móvil.(la idea es solo darle corriente con algún relé para que empiece el filtrado)
