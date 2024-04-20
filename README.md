@@ -18,7 +18,7 @@ Para el desarrollo se utilizara la placa Arduino UNO.
 
 ### Circuito Electrónico
 #### Circuito completo:
- [Simulación del circuito en Thinkercad](http://handlebarsjs.com/)  _[En desarrollo]_
+ [Simulación del circuito en Thinkercad](poner link)  _[En desarrollo]_
  #### Ejemplos de los sensores en thinkercad:
  TBD
  
