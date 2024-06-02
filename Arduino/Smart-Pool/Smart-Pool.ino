@@ -136,7 +136,7 @@ enum possibleEvents {
 possibleStates currentState;
 possibleEvents eventType;
 unsigned long previousTime;
-unsigned long previousBombTime;
+unsigned long previousWaterPumpTime;
 unsigned long previousForcedLightTime;
 unsigned long currentTime;
 bool lightManuallyChangedRecently;  // Espera luego de modificar manualmente las luces LED, para que se mantenga a pesar de los eventos generados por el sensor de luminosidad
@@ -407,7 +407,7 @@ void verifyLight() {
 }
 
 /*
-   Función: verifyTimersBomb
+   Función: verifyTimersWaterPump
    Descripción: Esta función verifica si se cumplió el plazo para que la bomba inicie o se detenga cuando está en modo filtrado
 
    Eventos Posibles:
@@ -416,11 +416,10 @@ void verifyLight() {
    - EVENT_CONTINUE: En caso de que no se cumpla ninguna de las condiciones arriba especificadas
 */
 
-void verifyTimersBomb() {
-  modePressed = digitalRead(PIN_WATER_PUMP_MODE_SWITCH_SENSOR);
-  if ((currentTime - previousBombTime) > TIME_TO_START_WATER_PUMP && !isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
+void verifyTimersWaterPump() {
+  if ((currentTime - previousWaterPumpTime) > TIME_TO_START_WATER_PUMP && !isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
     eventType = TIMER_START_WATER_PUMP;
-  else if ((currentTime - previousBombTime) > TIME_TO_STOP_WATER_PUMP && isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
+  else if ((currentTime - previousWaterPumpTime) > TIME_TO_STOP_WATER_PUMP && isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
     eventType = TIMER_STOP_WATER_PUMP;
   else
     eventType = EVENT_CONTINUE;
@@ -456,7 +455,7 @@ void verifyBTCommand() {
 }
 
 int index = INDEX_INITIALIZATION;
-void (*verifySensor[VERIFICATIONS_AMOUNT])() = { verifyModeSwitch, verifyWaterLevel, verifyTemperature, verifyLight, verifyTimersBomb, verifyBTCommand };
+void (*verifySensor[VERIFICATIONS_AMOUNT])() = { verifyModeSwitch, verifyWaterLevel, verifyTemperature, verifyLight, verifyTimersWaterPump, verifyBTCommand };
 
 /*
    Función: captureEvent
@@ -598,7 +597,7 @@ void fsm()
           break;
         case BLUETOOTH_SIGNAL_READY:
           turnONWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("DRAINING_DAY_MODE", "BLUETOOTH_SIGNAL_READY", "DRAINING_PROCESS_DAY");
           currentState = DRAINING_PROCESS_DAY;
           break;
@@ -633,7 +632,7 @@ void fsm()
           break;
         case LOW_WATER_LEVEL:
           turnOFFWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("DRAINING_PROCESS_DAY", "LOW_WATER_LEVEL", "IDLE");
           currentState = IDLE;
           break;
@@ -672,7 +671,7 @@ void fsm()
           break;
         case BLUETOOTH_SIGNAL_READY:
           turnONWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("DRAINING_NIGHT_MODE", "BLUETOOTH_SIGNAL_READY", "DRAINING_PROCESS_NIGHT");
           currentState = DRAINING_PROCESS_NIGHT;
           break;
@@ -714,7 +713,7 @@ void fsm()
           break;
         case LOW_WATER_LEVEL:
           turnOFFWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("DRAINING_PROCESS_NIGHT", "TIMER_STOP_WATER_PUMP", "IDLE");
           currentState = IDLE;
           break;
@@ -770,13 +769,13 @@ void fsm()
       {
         case MAX_TEMPERATURE:
           turnONWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("FILTERING_DAY_MODE", "MAX_TEMPERATURE", "FILTERING_PROCESS_DAY");
           currentState = FILTERING_PROCESS_DAY;
           break;
         case TIMER_START_WATER_PUMP:
           turnONWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("FILTERING_DAY_MODE", "TIMER_START_WATER_PUMP", "FILTERING_PROCESS_DAY");
           currentState = FILTERING_PROCESS_DAY;
           break;
@@ -832,7 +831,7 @@ void fsm()
           break;
         case TIMER_STOP_WATER_PUMP:
           turnOFFWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("FILTERING_PROCESS_DAY", "TIMER_STOP_WATER_PUMP", "IDLE");
           currentState = IDLE;
           break;
@@ -850,13 +849,13 @@ void fsm()
       {
         case MAX_TEMPERATURE:
           turnONWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("FILTERING_NIGHT_MODE", "MAX_TEMPERATURE", "FILTERING_PROCESS_NIGHT");
           currentState = FILTERING_PROCESS_NIGHT;
           break;
         case TIMER_START_WATER_PUMP:
           turnONWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("FILTERING_NIGHT_MODE", "TIMER_START_WATER_PUMP", "FILTERING_PROCESS_NIGHT");
           currentState = FILTERING_PROCESS_NIGHT;
           break;
@@ -919,7 +918,7 @@ void fsm()
           break;
         case TIMER_STOP_WATER_PUMP:
           turnOFFWaterPump();
-          previousBombTime = currentTime;
+          previousWaterPumpTime = currentTime;
           generateLog("FILTERING_PROCESS_NIGHT", "TIMER_STOP_WATER_PUMP", "IDLE");
           currentState = IDLE;
           break;
