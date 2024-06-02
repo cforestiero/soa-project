@@ -28,6 +28,17 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:layout_constraintVertical_bias="0.94" />
+        app:layout_constraintVertical_bias="0.654" />
+
+    <LinearLayout
+        android:id="@+id/linearlayout"
+        android:layout_width="409dp"
+        android:layout_height="502dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layout"
+        app:layout_constraintVertical_bias="0.578"></LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
