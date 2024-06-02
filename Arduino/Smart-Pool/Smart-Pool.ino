@@ -125,6 +125,7 @@ enum possibleEvents {
   BLUETOOTH_SIGNAL_READY,
   BLUETOOTH_SIGNAL_LIGHT_COLOUR,
   BLUETOOTH_SIGNAL_LIGHT_MODE,
+  BLUETOOTH_SIGNAL_SEND_INFORMATION,
   EVENT_CONTINUE
 };
 
@@ -141,11 +142,35 @@ unsigned long currentTime;
 bool lightManuallyChangedRecently;  // Espera luego de modificar manualmente las luces LED, para que se mantenga a pesar de los eventos generados por el sensor de luminosidad
 bool isWaterPumpON;
 
+// Información de Sensores
+bool modePressed;
+float waterTemperatureCelsius;
+float waterDistanceCM;
+float placeLuminosity;
+
+
 /*****************************************************
               CREACION DE SOFTWARESERIAL
 ******************************************************/
 
 SoftwareSerial BTSerial(PIN_BLUETOOTH_RX, PIN_BLUETOOTH_TX);
+
+/*****************************************************
+              FUNCIONES DE BLUETOOTH
+******************************************************/
+
+void sendCurrentInformation() {
+  String currentMode = (modePressed == SWITCH_FILTERING_MODE) ? "Filtrado" : "Drenaje";
+  BTSerial.println("*****************************************************");
+  BTSerial.println("           INFORMACION ACTUAL DE LA PISCINA          ");
+  BTSerial.println("*****************************************************");
+  BTSerial.println("• Estado: " + String(currentState));
+  BTSerial.println("• Modo de Bomba: " + currentMode);
+  BTSerial.println("• Temperatura del Agua: " + String(waterTemperatureCelsius) + " ºC");
+  BTSerial.println("• Distancia del Agua: " + String(waterDistanceCM) + " cm");
+  BTSerial.println("• Luminosidad del Ambiente: " + String(placeLuminosity) + " lux");
+  BTSerial.println("*****************************************************");
+}
 
 /*****************************************************
                    FUNCIONES DE LOGS
@@ -309,7 +334,7 @@ void turnONWaterPump() {
 */
 
 void verifyModeSwitch() {
-  bool modePressed = digitalRead(PIN_WATER_PUMP_MODE_SWITCH_SENSOR);
+  modePressed = digitalRead(PIN_WATER_PUMP_MODE_SWITCH_SENSOR);
 
   if (modePressed == SWITCH_FILTERING_MODE)
     eventType = SWITCH_FILTERING;
@@ -329,9 +354,9 @@ void verifyModeSwitch() {
 */
 
 void verifyTemperature() {
-  float temperatureCelsius = readTemperature();
+  waterTemperatureCelsius = readTemperature();
 
-  if (temperatureCelsius > TEMPERATURE_THRESHOLD)
+  if (waterTemperatureCelsius > TEMPERATURE_THRESHOLD)
     eventType = MAX_TEMPERATURE;
   else
     eventType = EVENT_CONTINUE;
@@ -347,9 +372,9 @@ void verifyTemperature() {
 */
 
 void verifyWaterLevel() {
-  float distanceCM = measureDistance();
+  waterDistanceCM = measureDistance();
 
-  if (distanceCM >= WATER_LEVEL_THRESHOLD)
+  if (waterDistanceCM >= WATER_LEVEL_THRESHOLD)
     eventType = LOW_WATER_LEVEL;
   else
     eventType = EVENT_CONTINUE;
@@ -366,13 +391,13 @@ void verifyWaterLevel() {
 */
 
 void verifyLight() {
-  float luminosity = readLuminosity();
+  placeLuminosity = readLuminosity();
   if (lightManuallyChangedRecently && (currentTime - previousForcedLightTime) <= TIMER_FORCED_LIGHT_MODE)
     eventType = EVENT_CONTINUE;
-  else if (luminosity <= LOW_LUMINOSITY_THRESHOLD) {
+  else if (placeLuminosity <= LOW_LUMINOSITY_THRESHOLD) {
     lightManuallyChangedRecently = false;
     eventType = LOW_LIGHT;
-  } else if (luminosity <= MEDIUM_LUMINOSITY_THRESHOLD) {
+  } else if (placeLuminosity <= MEDIUM_LUMINOSITY_THRESHOLD) {
     lightManuallyChangedRecently = false;
     eventType = MEDIUM_LIGHT;
   } else {
@@ -392,7 +417,7 @@ void verifyLight() {
 */
 
 void verifyTimersBomb() {
-  bool modePressed = digitalRead(PIN_WATER_PUMP_MODE_SWITCH_SENSOR);
+  modePressed = digitalRead(PIN_WATER_PUMP_MODE_SWITCH_SENSOR);
   if ((currentTime - previousBombTime) > TIME_TO_START_WATER_PUMP && !isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
     eventType = TIMER_START_WATER_PUMP;
   else if ((currentTime - previousBombTime) > TIME_TO_STOP_WATER_PUMP && isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
@@ -421,6 +446,8 @@ void verifyBTCommand() {
       eventType = BLUETOOTH_SIGNAL_LIGHT_COLOUR;
     else if(command.equalsIgnoreCase("CHANGE_LIGHT_MODE"))
       eventType = BLUETOOTH_SIGNAL_LIGHT_MODE;
+    else if(command.equalsIgnoreCase("SEND_INFORMATION"))
+      eventType = BLUETOOTH_SIGNAL_SEND_INFORMATION;
     else {
       BTSerial.println("Error: Comando desconocido, por favor vuelva a intentarlo.");
       eventType = EVENT_CONTINUE;
@@ -505,6 +532,10 @@ void fsm()
           generateLog("IDLE", "SWITCH_DRAINING", "FILTERING_MODE");
           currentState = FILTERING_MODE;
           break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = IDLE;
+          break;
         case EVENT_CONTINUE:
           currentState = IDLE;
           break;
@@ -531,6 +562,10 @@ void fsm()
         case SWITCH_FILTERING:
           generateLog("DRAINING_MODE", "SWITCH_FILTERING", "FILTERING_MODE");
           currentState = FILTERING_MODE;
+          break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = DRAINING_MODE;
           break;
         case EVENT_CONTINUE:
           currentState = DRAINING_MODE;
@@ -567,6 +602,10 @@ void fsm()
           generateLog("DRAINING_DAY_MODE", "BLUETOOTH_SIGNAL_READY", "DRAINING_PROCESS_DAY");
           currentState = DRAINING_PROCESS_DAY;
           break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = DRAINING_DAY_MODE;
+          break;
         case EVENT_CONTINUE:
           currentState = DRAINING_DAY_MODE;
           break;
@@ -597,6 +636,10 @@ void fsm()
           previousBombTime = currentTime;
           generateLog("DRAINING_PROCESS_DAY", "LOW_WATER_LEVEL", "IDLE");
           currentState = IDLE;
+          break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = DRAINING_PROCESS_DAY;
           break;
         case EVENT_CONTINUE:
           currentState = DRAINING_PROCESS_DAY;
@@ -640,6 +683,10 @@ void fsm()
           generateLog("DRAINING_NIGHT_MODE", "BLUETOOTH_SIGNAL_LIGHT_COLOUR", "DRAINING_NIGHT_MODE");
           currentState = DRAINING_NIGHT_MODE;
           break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = DRAINING_NIGHT_MODE;
+          break;
         case EVENT_CONTINUE:
           currentState = DRAINING_NIGHT_MODE;
           break;
@@ -678,6 +725,10 @@ void fsm()
           generateLog("DRAINING_PROCESS_NIGHT", "BLUETOOTH_SIGNAL_LIGHT_COLOUR", "DRAINING_PROCESS_NIGHT");
           currentState = DRAINING_PROCESS_NIGHT;
           break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = DRAINING_PROCESS_NIGHT;
+          break;
         case EVENT_CONTINUE:
           currentState = DRAINING_PROCESS_NIGHT;
           break;
@@ -704,6 +755,10 @@ void fsm()
         case SWITCH_DRAINING:
           generateLog("FILTERING_MODE", "SWITCH_DRAINING", "DRAINING_MODE");
           currentState = DRAINING_MODE;
+          break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = FILTERING_MODE;
           break;
         case EVENT_CONTINUE:
           currentState = FILTERING_MODE;
@@ -746,6 +801,10 @@ void fsm()
           generateLog("FILTERING_DAY_MODE", "SWITCH_DRAINING", "DRAINING_DAY_MODE");
           currentState = DRAINING_DAY_MODE;
           break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = FILTERING_DAY_MODE;
+          break;
         case EVENT_CONTINUE:
           currentState = FILTERING_DAY_MODE;
           break;
@@ -776,6 +835,10 @@ void fsm()
           previousBombTime = currentTime;
           generateLog("FILTERING_PROCESS_DAY", "TIMER_STOP_WATER_PUMP", "IDLE");
           currentState = IDLE;
+          break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = FILTERING_PROCESS_DAY;
           break;
         case EVENT_CONTINUE:
           currentState = FILTERING_PROCESS_DAY;
@@ -825,6 +888,10 @@ void fsm()
           generateLog("FILTERING_NIGHT_MODE", "BLUETOOTH_SIGNAL_LIGHT_COLOUR", "FILTERING_NIGHT_MODE");
           currentState = FILTERING_NIGHT_MODE;
           break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
+          currentState = FILTERING_NIGHT_MODE;
+          break;
         case EVENT_CONTINUE:
           currentState = FILTERING_NIGHT_MODE;
           break;
@@ -861,6 +928,10 @@ void fsm()
           lightManuallyChangedRecently = true;
           previousForcedLightTime = currentTime;
           generateLog("FILTERING_PROCESS_NIGHT", "BLUETOOTH_SIGNAL_LIGHT_COLOUR", "FILTERING_PROCESS_NIGHT");
+          currentState = FILTERING_PROCESS_NIGHT;
+          break;
+        case BLUETOOTH_SIGNAL_SEND_INFORMATION:
+          sendCurrentInformation();
           currentState = FILTERING_PROCESS_NIGHT;
           break;
         case EVENT_CONTINUE:
