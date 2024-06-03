@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/smart_pool_background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/text_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="32dp"
+        android:layout_weight="1"
+        android:text="Smart Pool"
+        android:textColor="#FFFFFF"
+        android:textSize="75sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="177dp"
+        android:layout_height="21dp"
+        android:layout_weight="1"
+        android:textSize="30sp"
+        android:text="Iniciar" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="411dp"
+        android:layout_height="205dp"
+        android:layout_weight="1"
+        app:srcCompat="@drawable/baseline_pool_24" />
+</LinearLayout>
