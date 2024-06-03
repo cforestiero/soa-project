@@ -2,9 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.MiEjemplo2Pool" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary branding colors -->
-        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimary">#7AE8F3</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorOnPrimary">#000000</item>
 
         <!-- Secondary branding colors -->
         <item name="colorSecondary">@color/colorSecondary</item>

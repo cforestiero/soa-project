@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">SmartPool</string>
     <string name="lights">Lights</string>
+    <string name="luces">Color LED</string>
+    <string name="filtrar">Filtrar</string>
+    <string name="desagote">Desagote</string>
+    <string name="seleccione_color_del_led">Seleccione color del LED</string>
+    <string name="confirm">Confirmar</string>
+    <string name="smart_pool">smartpool</string>
 </resources>
