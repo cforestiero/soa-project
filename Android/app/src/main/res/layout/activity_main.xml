@@ -28,28 +28,9 @@
         app:layout_constraintVertical_bias="0.15" />
 
     <Button
-        android:id="@+id/buttonFilter"
-        android:layout_width="363dp"
-        android:layout_height="104dp"
-        android:enabled="false"
-        android:fontFamily="sans-serif"
-        android:lineSpacingExtra="8sp"
-        android:text="@string/filtrar"
-        android:textAlignment="center"
-        android:textAllCaps="false"
-        android:textSize="20sp"
-        android:typeface="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.333" />
-
-    <Button
         android:id="@+id/buttonDewater"
         android:layout_width="363dp"
         android:layout_height="104dp"
-        android:enabled="false"
         android:fontFamily="sans-serif"
         android:lineSpacingExtra="8sp"
         android:text="@string/desagote"
@@ -60,8 +41,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.515" />
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        app:layout_constraintVertical_bias="0.032" />
 
     <Switch
         android:id="@+id/switch1"
