@@ -4,16 +4,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.lang.ref.WeakReference;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,9 +41,22 @@ public class MainActivity extends AppCompatActivity {
         buttonLights = findViewById(R.id.button);
         buttonDewater = findViewById(R.id.buttonDewater);
 
-        bluetoothManager = BluetoothManager.getInstance();
+        bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
         bluetoothManager.setHandler(bluetoothIn);
+        Log.d("MainActivity", "BluetoothManager instance set with handler");
+        //bluetoothManager.sendCommand('I');
+
+        Button sendCommandButton = findViewById(R.id.buttonDewater);
+        sendCommandButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bluetoothManager.sendCommand('I'); // Example command
+                //
+            }
+        });
+
+
 
         buttonLights.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,26 +66,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private final Handler bluetoothIn = new Handler(new Handler.Callback() {
+    private final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
         @Override
-        public boolean handleMessage(Message msg) {
-            String data = (String) msg.obj;
-            // Parse and update UI
-            String[] parts = data.split(" ");
-            for (String part : parts) {
-                // Ver como viene el mensaje
-                if (part.startsWith("F:")) { // Si tiene una F de filtrado o si no empieza con D
-                    // Esconde el boton de drenado
-                    buttonDewater.setVisibility(View.GONE);
-                } else if (part.startsWith("D:")) {
-                    // muestra el boton para drenar
-
-                } else if (part.startsWith("A:")) {
-                    // Aca estaria haciendo una accion y se muestra si filtra o drena
-
-                }
-            }
-            return true;
+        public void handleMessage(@NonNull Message msg) {
+            String receivedMessage = (String) msg.obj;
+            Log.d("MainActivity", "Received message: " + receivedMessage);
+            // Handle the received message
+            Toast.makeText(MainActivity.this, "Received: " + receivedMessage, Toast.LENGTH_SHORT).show();
         }
-    });
+    };
 }
