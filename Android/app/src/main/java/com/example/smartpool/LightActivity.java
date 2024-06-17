@@ -6,6 +6,12 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
+import android.widget.Button;
+import android.widget.Toast;
+import android.view.View;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBar;
@@ -20,6 +26,8 @@ public class LightActivity extends AppCompatActivity {
     private Sensor accelerometerSensor;
     private AccelerometerEventListener accelerometerEventListener;
     private LinearLayout layout;
+    private int selectedColor = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +55,20 @@ public class LightActivity extends AppCompatActivity {
             accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             accelerometerEventListener = new AccelerometerEventListener(layout);
         }
+
+        Button btnConfirm = findViewById(R.id.btn_confirm);
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Save the color
+                selectedColor = ((ColorDrawable) layout.getBackground()).getColor();
+                Toast.makeText(LightActivity.this, "Color seleccionado guardado", Toast.LENGTH_SHORT).show();
+
+                // Cambiar el color del VectorDrawable
+                ImageView imageView = findViewById(R.id.imageView);
+                imageView.setColorFilter(selectedColor); // Cambiar el color del ImageView
+            }
+        });
     }
 
     @Override

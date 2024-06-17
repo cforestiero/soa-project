@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiEjemplo2Pool"
         tools:targetApi="31">
+
         <activity
             android:name=".LightActivity"
             android:exported="false"
@@ -20,15 +21,21 @@
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value=".MainActivity"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
+        </activity>
+
+        <activity
+            android:name=".WelcomeActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
