@@ -96,10 +96,10 @@ public class BluetoothManager {
         }
     }
 
-    public void sendCommand(char command) {
+    public void sendCommand(String command) {
         try {
             if (outputStream != null) {
-                outputStream.write(command);
+                outputStream.write(command.getBytes());
                 Log.d("ENVIO", "Data sent: " + command);
             }
         } catch (IOException e) {

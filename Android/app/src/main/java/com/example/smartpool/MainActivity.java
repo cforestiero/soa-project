@@ -22,6 +22,8 @@ import java.lang.ref.WeakReference;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String PUMP_MODE = "B";
+
     private BluetoothManager bluetoothManager;
 
     Button buttonLights;
@@ -44,19 +46,7 @@ public class MainActivity extends AppCompatActivity {
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
         bluetoothManager.setHandler(bluetoothIn);
-        Log.d("MainActivity", "BluetoothManager instance set with handler");
-        //bluetoothManager.sendCommand('I');
-
-        Button sendCommandButton = findViewById(R.id.buttonDewater);
-        sendCommandButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bluetoothManager.sendCommand('I'); // Example command
-                //
-            }
-        });
-
-
+        bluetoothManager.sendCommand(PUMP_MODE);
 
         buttonLights.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,7 +62,37 @@ public class MainActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("MainActivity", "Received message: " + receivedMessage);
             // Handle the received message
-            Toast.makeText(MainActivity.this, "Received: " + receivedMessage, Toast.LENGTH_SHORT).show();
+            if (receivedMessage.contains(",")) {
+                String[] parts = receivedMessage.split(",", 2); // Split into two parts only
+                if (parts.length == 2) {
+                    String key = parts[0];
+                    String value = parts[1];
+                    Log.d("MainActivity", "Parsed key: " + key + ", value: " + value);
+                    // Handle the parsed key-value pair
+                    handleParsedKeyValue(key, value);
+                } else {
+                    Log.e("MainActivity", "Received message format is incorrect");
+                }
+            } else {
+                Log.e("MainActivity", "Received message does not contain a comma");
+            }
+
         }
     };
+
+    private void handleParsedKeyValue(String key, String value) {
+        switch (key) {
+            case PUMP_MODE:
+                Log.d("MainActivity", "Handling PUMP_MODE with value: " + value);
+                if (value.contains("Filtrado")){
+                    // Si la bomba esta en modo filtrado entonces se esconde el boton de desagote
+                    buttonDewater.setVisibility(View.GONE);
+                }
+                break;
+            default:
+                Log.d("MainActivity", "Unknown command: " + key + " with value: " + value);
+                //Toast.makeText(MainActivity.this, "Unknown command: " + key + " with value: " + value, Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
 }
