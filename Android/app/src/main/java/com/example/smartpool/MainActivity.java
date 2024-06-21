@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("MainActivity", "Received message: " + receivedMessage);
             // Handle the received message
 
-            if (receivedMessage.contains("FILTERING_MODE")) {
+            if (receivedMessage.contains("FILTERING")) {
                 // Si la bomba esta en modo filtrado entonces se esconde el boton de desagote
                 buttonDewater.setVisibility(View.GONE);
             }
