@@ -51,9 +51,9 @@ public class MainActivity extends AppCompatActivity {
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
         bluetoothManager.setHandler(bluetoothIn);
-        bluetoothManager.sendCommand(PUMP_MODE);
+        //bluetoothManager.sendCommand(PUMP_MODE);
         // Cada cierto tiempo se mande a ver si se esta filtrando o desagotando
-        bluetoothManager.sendCommand(PUMP_WORKING);
+        //bluetoothManager.sendCommand(PUMP_WORKING);
 
         buttonLights.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,67 +62,92 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        boy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Cada vez que apreto al hombrecito se mandan mensajes para actualizar el Main Activity
-                // despues hacer que Cada cierto tiempo se manden estos comandos a ver si se esta filtrando o desagotando
-                bluetoothManager.sendCommand(PUMP_MODE);
-                bluetoothManager.sendCommand(PUMP_WORKING);            }
-        });
+//        boy.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Cada vez que apreto al hombrecito se mandan mensajes para actualizar el Main Activity
+//                // despues hacer que Cada cierto tiempo se manden estos comandos a ver si se esta filtrando o desagotando
+//              //  bluetoothManager.sendCommand(PUMP_MODE);
+//               // bluetoothManager.sendCommand(PUMP_WORKING);            }
+//        });
+
     }
 
-    private final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
+     final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             String receivedMessage = (String) msg.obj;
             Log.d("MainActivity", "Received message: " + receivedMessage);
             // Handle the received message
-            if (receivedMessage.contains(",")) {
-                String[] parts = receivedMessage.split(",", 2); // Split into two parts only
-                if (parts.length == 2) {
-                    String key = parts[0];
-                    String value = parts[1];
-                    Log.d("MainActivity", "Parsed key: " + key + ", value: " + value);
-                    // Handle the parsed key-value pair
-                    handleParsedKeyValue(key, value);
-                } else {
-                    Log.e("MainActivity", "Received message format is incorrect");
-                }
-            } else {
-                Log.e("MainActivity", "Received message does not contain a comma");
+
+            if (receivedMessage.contains("FILTERING_MODE")) {
+                // Si la bomba esta en modo filtrado entonces se esconde el boton de desagote
+                buttonDewater.setVisibility(View.GONE);
             }
 
-        }
-    };
-
-    private void handleParsedKeyValue(String key, String value) {
-        switch (key) {
-            case PUMP_MODE:
-                Log.d("MainActivity", "Handling PUMP_MODE with value: " + value);
-                if (value.contains("Filtrado")){
-                    // Si la bomba esta en modo filtrado entonces se esconde el boton de desagote
-                    buttonDewater.setVisibility(View.GONE);
+            if (receivedMessage.contains("PROCESS")) {
+                if (receivedMessage.contains("FILTERING")) {
+                    rectanglePumpActionTextView.setText("Filtrando... ");
+                } else {
+                    rectanglePumpActionTextView.setText("Desagotando... ");
                 }
-                break;
-            case PUMP_WORKING:
-                Log.d("MainActivity", "Handling PUMP_WORKING with value: " + value);
-                rectanglePumpActionTextView.setText(value);
                 rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
-               // if (value.contains("Filtrando")){
-                 //   rectanglePumpActionTextView.setText(value);
-                   // rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
-                    // Si la bomba esta Filtrando se muestra un coso que dice filtrando
-                    //buttonDewater.setVisibility(View.);
-                //}
-                if (value.contains("NO")){
-                    rectanglePumpActionTextView.setVisibility(TextView.GONE);
-                }
-                break;
-            default:
-                Log.d("MainActivity", "Unknown command: " + key + " with value: " + value);
-                //Toast.makeText(MainActivity.this, "Unknown command: " + key + " with value: " + value, Toast.LENGTH_SHORT).show();
-                break;
-        }
+            } else {
+                rectanglePumpActionTextView.setVisibility(TextView.GONE);
+            }
+        }};
+
     }
-}
+
+
+//            if (receivedMessage.contains(",")) {
+//                String[] parts = receivedMessage.split(",", 2); // Split into two parts only
+//                if (parts.length == 2) {
+//                    String key = parts[0];
+//                    String value = parts[1];
+//                    Log.d("MainActivity", "Parsed key: " + key + ", value: " + value);
+//                    // Handle the parsed key-value pair
+//                    handleParsedKeyValue(key, value);
+//                } else {
+//                    Log.e("MainActivity", "Received message format is incorrect");
+//                }
+//            } else {
+//                Log.e("MainActivity", "Received message does not contain a comma");
+//            }
+
+ //       }
+   // };
+
+//    private void handleParsedKeyValue(String key, String value) {
+//        switch (key) {
+//            case PUMP_MODE:
+//                Log.d("MainActivity", "Handling PUMP_MODE with value: " + value);
+//                if (value.contains("FILTERING_MODE")){
+//                    // Si la bomba esta en modo filtrado entonces se esconde el boton de desagote
+//                    buttonDewater.setVisibility(View.GONE);
+//                }
+//                break;
+//            case PUMP_WORKING:
+//                Log.d("MainActivity", "Handling PUMP_WORKING with value: " + value);
+//                if (value.contains("PROCESS")){
+//                    rectanglePumpActionTextView.setText(value);
+//                    rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
+//                } else {
+//                    rectanglePumpActionTextView.setVisibility(TextView.GONE);
+//                }
+//               // if (value.contains("Filtrando")){
+//                 //   rectanglePumpActionTextView.setText(value);
+//                   // rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
+//                    // Si la bomba esta Filtrando se muestra un coso que dice filtrando
+//                    //buttonDewater.setVisibility(View.);
+//                //}
+//                if (value.contains("NO")){
+//                }
+//                break;
+//            default:
+//                Log.d("MainActivity", "Unknown command: " + key + " with value: " + value);
+//                //Toast.makeText(MainActivity.this, "Unknown command: " + key + " with value: " + value, Toast.LENGTH_SHORT).show();
+//                break;
+//        }
+//    }
+//}
