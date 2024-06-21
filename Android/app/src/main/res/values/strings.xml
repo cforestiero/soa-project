@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">SmartPool</string>
     <string name="lights">Lights</string>
-    <string name="luces">Luces LED</string>
+    <string name="luces">Luces</string>
     <string name="filtrar">Filtrado</string>
     <string name="desagote">Desagote</string>
     <string name="seleccione_color_del_led">Gire el celular para cambiar el color</string>
     <string name="confirm">Confirmar</string>
     <string name="smart_pool">smartpool</string>
+    <string name="estadisticas">Estadisticas</string>
+    <string name="filtrado">Filtrado</string>
 </resources>
