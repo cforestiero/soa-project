@@ -31,7 +31,7 @@
         android:id="@+id/buttonDewater"
         android:layout_width="363dp"
         android:layout_height="104dp"
-        android:enabled="false"
+        android:enabled="true"
         android:fontFamily="sans-serif"
         android:lineSpacingExtra="8sp"
         android:text="@string/desagote"

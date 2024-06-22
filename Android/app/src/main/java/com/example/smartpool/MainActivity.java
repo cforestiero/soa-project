@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
         Button buttonLights = (Button)findViewById(R.id.button);
         ImageButton configButton = (ImageButton) findViewById(R.id.imageButton);
+        Button buttonStats = (Button)findViewById(R.id.buttonInfo);
+        Button buttonDewater = (Button)findViewById(R.id.buttonDewater);
 
         buttonLights.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,6 +42,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, ConfigurationsFilterActivity.class));
+            }
+        });
+
+        buttonStats.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, StatsActivity.class));
+            }
+        });
+
+        buttonDewater.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, DewaterActivity.class));
             }
         });
     }
