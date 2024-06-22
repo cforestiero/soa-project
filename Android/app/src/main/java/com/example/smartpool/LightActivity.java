@@ -115,19 +115,12 @@ public class LightActivity extends AppCompatActivity {
 
         // Load the switch state and selected color from SharedPreferences
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        boolean switchState = preferences.getBoolean(SWITCH_STATE_KEY, false);
+        //boolean switchState = preferences.getBoolean(SWITCH_STATE_KEY, false);
         selectedColor = preferences.getInt(SELECTED_COLOR_KEY, 0); // Default color 0 (usually black)
-        switchPower.setChecked(switchState);
-        if (switchState) {
-            bluetoothManager.sendCommand("W"); // W es para prender
-        }
+      //  switchPower.setChecked(switchState);
 
         // Set initial visibility based on the Switch state
-        int initialVisibility = switchState ? View.VISIBLE : View.INVISIBLE;
-        textView.setVisibility(initialVisibility);
-        linearlayout.setVisibility(initialVisibility);
-        btnConfirm.setVisibility(initialVisibility);
-        imageView.setVisibility(initialVisibility);
+        bluetoothManager.sendCommand("L");
 
         // Set the initial color of the ImageView if a color was previously selected
         if (selectedColor != 0) {
@@ -150,9 +143,9 @@ public class LightActivity extends AppCompatActivity {
             btnConfirm.setVisibility(visibility);
             imageView.setVisibility(visibility);
 
-            if (isChecked){
+            //if (isChecked){
                 bluetoothManager.sendCommand("W");
-            }
+            //}
 
             // Save the switch state to SharedPreferences
             SharedPreferences.Editor editor = preferences.edit();
@@ -199,6 +192,20 @@ public class LightActivity extends AppCompatActivity {
             if (receivedMessage.contains("DAY") ) {
                 // Si esta en modo dia la luz se apaga
                 switchPower.setChecked(false);
+
+                int initialVisibility = false ? View.VISIBLE : View.INVISIBLE;
+                textView.setVisibility(initialVisibility);
+                linearlayout.setVisibility(initialVisibility);
+                btnConfirm.setVisibility(initialVisibility);
+                imageView.setVisibility(initialVisibility);
+
+            } else {
+                switchPower.setChecked(true);
+                int initialVisibility = true ? View.VISIBLE : View.INVISIBLE;
+                textView.setVisibility(initialVisibility);
+                linearlayout.setVisibility(initialVisibility);
+                btnConfirm.setVisibility(initialVisibility);
+                imageView.setVisibility(initialVisibility);
             }
         }
     };
