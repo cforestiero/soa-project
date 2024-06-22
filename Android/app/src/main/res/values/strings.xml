@@ -7,6 +7,6 @@
     <string name="seleccione_color_del_led">Gire el celular para cambiar el color</string>
     <string name="confirm">Confirmar</string>
     <string name="smart_pool">smartpool</string>
-    <string name="pumpActionFilteringMessage">Filtrando… Progreso %</string>
-    <string name="pumpActionDrainingMessage">Desagotando… Progreso %</string>
+    <string name="estadisticas">Estadísticas</string>
+    <string name="filtrado">Filtrado</string>
 </resources>

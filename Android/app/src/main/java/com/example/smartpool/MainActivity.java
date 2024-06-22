@@ -1,6 +1,7 @@
 package com.example.smartpool;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -43,20 +45,28 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        ImageButton configButton = (ImageButton) findViewById(R.id.imageButton);
         buttonLights = findViewById(R.id.button);
         buttonDewater = findViewById(R.id.buttonDewater);
         rectanglePumpActionTextView = findViewById(R.id.rectangleTextView);
-        boy = findViewById(R.id.boy);
 
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
         bluetoothManager.setHandler(bluetoothIn);
         bluetoothManager.sendCommand(PUMP_MODE);
+        Button buttonLights = (Button)findViewById(R.id.button);
 
         buttonLights.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, LightActivity.class));
+            }
+        });
+
+        configButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ConfigurationsFilterActivity.class));
             }
         });
 
@@ -90,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
                 rectanglePumpActionTextView.setVisibility(TextView.GONE);
             }
         }};
-
     }
 
 
