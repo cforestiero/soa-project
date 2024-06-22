@@ -25,7 +25,6 @@ import java.lang.ref.WeakReference;
 public class MainActivity extends AppCompatActivity {
 
     private static final String PUMP_MODE = "B";
-    private static final String PUMP_WORKING = "W";
 
     private BluetoothManager bluetoothManager;
 
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("MainActivity", "Received message: " + receivedMessage);
             // Handle the received message
-            if (receivedMessage.contains("Estado Final: FILTERING") || receivedMessage.contains("B, Filtrado")) {
+            if (receivedMessage.contains("Estado Final: FILTERING") || receivedMessage.contains("B,Filtrado")) {
                 // Si la bomba esta en modo filtrado entonces se esconde el boton de desagote
                 buttonDewater.setVisibility(View.GONE);
             } else {

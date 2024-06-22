@@ -3,12 +3,17 @@ package com.example.smartpool;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
-import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.view.View;
 import android.graphics.drawable.ColorDrawable;
@@ -16,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -23,17 +29,21 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.lang.ref.WeakReference;
+
 public class LightActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "LightActivityPrefs";
     private static final String SWITCH_STATE_KEY = "switch_state";
     private static final String SELECTED_COLOR_KEY = "selected_color";
 
+    private BluetoothManager bluetoothManager;
     private SensorManager sensorManager;
+
     private Sensor accelerometerSensor;
     private AccelerometerEventListener accelerometerEventListener;
     private LinearLayout layout;
     private int selectedColor = 0;
-    private Switch switch1;
+    private Switch switchPower;
     private View textView;
     private View linearlayout;
     private View btnConfirm;
@@ -50,6 +60,10 @@ public class LightActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
+        bluetoothManager.setContext(this);
+        bluetoothManager.setHandler(bluetoothIn);
 
         // Set up the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -79,6 +93,12 @@ public class LightActivity extends AppCompatActivity {
                 // Cambiar el color del VectorDrawable
                 imageView.setColorFilter(selectedColor); // Cambiar el color del ImageView
 
+                int red = Color.red(selectedColor);
+                int green = Color.green(selectedColor);
+                int blue = Color.blue(selectedColor);
+                String colorData = "C" + red + " " + green + " " + blue + "\n";
+                bluetoothManager.sendCommand(colorData);
+
                 // Save the color to SharedPreferences
                 SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                 editor.putInt(SELECTED_COLOR_KEY, selectedColor);
@@ -87,7 +107,7 @@ public class LightActivity extends AppCompatActivity {
         });
 
         // Find the Switch
-        switch1 = findViewById(R.id.switch1);
+        switchPower = findViewById(R.id.switch1);
         // Find the components to make invisible
         textView = findViewById(R.id.textView);
         linearlayout = findViewById(R.id.linearlayout);
@@ -97,7 +117,12 @@ public class LightActivity extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean switchState = preferences.getBoolean(SWITCH_STATE_KEY, false);
         selectedColor = preferences.getInt(SELECTED_COLOR_KEY, 0); // Default color 0 (usually black)
-        switch1.setChecked(switchState);
+        switchPower.setChecked(switchState);
+        if (switchState) {
+            bluetoothManager.sendCommand("W"); // ver comando
+        } else {
+            bluetoothManager.sendCommand("OFF"); // ver comando
+        }
 
         // Set initial visibility based on the Switch state
         int initialVisibility = switchState ? View.VISIBLE : View.INVISIBLE;
@@ -110,15 +135,24 @@ public class LightActivity extends AppCompatActivity {
         if (selectedColor != 0) {
             layout.setBackgroundColor(selectedColor); // Cambiar el color de fondo del layout
             imageView.setColorFilter(selectedColor); // Cambiar el color del ImageView
+            // Enviar comando de color al Arduino
+            int red = Color.red(selectedColor);
+            int green = Color.green(selectedColor);
+            int blue = Color.blue(selectedColor);
+            String colorData = "C" + red + " " + green + " " + blue + "\n";
+            bluetoothManager.sendCommand(colorData); // Enviar el RGB
+
         }
 
         // Set the listener for the Switch
-        switch1.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        switchPower.setOnCheckedChangeListener((buttonView, isChecked) -> {
             int visibility = isChecked ? View.VISIBLE : View.INVISIBLE;
             textView.setVisibility(visibility);
             linearlayout.setVisibility(visibility);
             btnConfirm.setVisibility(visibility);
             imageView.setVisibility(visibility);
+
+            bluetoothManager.sendCommand("W");
 
             // Save the switch state to SharedPreferences
             SharedPreferences.Editor editor = preferences.edit();
@@ -155,4 +189,14 @@ public class LightActivity extends AppCompatActivity {
             sensorManager.unregisterListener(accelerometerEventListener);
         }
     }
+
+    final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            String receivedMessage = (String) msg.obj;
+            Log.d("LightActivity", "Received message: " + receivedMessage);
+            // Handle the received message
+        }
+    };
+
 }
