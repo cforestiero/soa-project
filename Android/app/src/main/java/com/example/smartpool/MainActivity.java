@@ -51,9 +51,7 @@ public class MainActivity extends AppCompatActivity {
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
         bluetoothManager.setHandler(bluetoothIn);
-        //bluetoothManager.sendCommand(PUMP_MODE);
-        // Cada cierto tiempo se mande a ver si se esta filtrando o desagotando
-        //bluetoothManager.sendCommand(PUMP_WORKING);
+        bluetoothManager.sendCommand(PUMP_MODE);
 
         buttonLights.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,15 +59,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, LightActivity.class));
             }
         });
-
-//        boy.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Cada vez que apreto al hombrecito se mandan mensajes para actualizar el Main Activity
-//                // despues hacer que Cada cierto tiempo se manden estos comandos a ver si se esta filtrando o desagotando
-//              //  bluetoothManager.sendCommand(PUMP_MODE);
-//               // bluetoothManager.sendCommand(PUMP_WORKING);            }
-//        });
 
     }
 
@@ -79,20 +68,25 @@ public class MainActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("MainActivity", "Received message: " + receivedMessage);
             // Handle the received message
-
-            if (receivedMessage.contains("FILTERING")) {
+            if (receivedMessage.contains("Estado Final: FILTERING") || receivedMessage.contains("B, Filtrado")) {
                 // Si la bomba esta en modo filtrado entonces se esconde el boton de desagote
                 buttonDewater.setVisibility(View.GONE);
+            } else {
+                buttonDewater.setVisibility(View.VISIBLE);
             }
 
             if (receivedMessage.contains("PROCESS")) {
-                if (receivedMessage.contains("FILTERING")) {
+                // Si la bomba esta andando
+                if (receivedMessage.contains("Estado Final: FILTERING")) {
+                    // Y esta filtrando
                     rectanglePumpActionTextView.setText("Filtrando... ");
                 } else {
+                    // Sino, esta drenando
                     rectanglePumpActionTextView.setText("Desagotando... ");
                 }
                 rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
             } else {
+                // Si la bomba no esta haciendo nada entonces se esconde el mensaje
                 rectanglePumpActionTextView.setVisibility(TextView.GONE);
             }
         }};
