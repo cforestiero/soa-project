@@ -34,6 +34,8 @@ import java.lang.ref.WeakReference;
 public class LightActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "LightActivityPrefs";
     private static final String SWITCH_STATE_KEY = "switch_state";
+    private Boolean switchDefaultValue = false;
+
     private static final String SELECTED_COLOR_KEY = "selected_color";
 
     private BluetoothManager bluetoothManager;
@@ -47,7 +49,7 @@ public class LightActivity extends AppCompatActivity {
     private View textView;
     private View linearlayout;
     private View btnConfirm;
-    private ImageView imageView; // Asegúrate de que es un ImageView
+    private ImageView imageView;
 
     @SuppressLint("CutPasteId")
     @Override
@@ -61,6 +63,7 @@ public class LightActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Bluetooth
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
         bluetoothManager.setHandler(bluetoothIn);
@@ -82,6 +85,7 @@ public class LightActivity extends AppCompatActivity {
             accelerometerEventListener = new AccelerometerEventListener(layout);
         }
 
+        // Buttons
         btnConfirm = findViewById(R.id.btn_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,7 +109,7 @@ public class LightActivity extends AppCompatActivity {
                 editor.apply();
             }
         });
-
+        // Color elements
         switchPower = findViewById(R.id.switch1);
         textView = findViewById(R.id.textView);
         linearlayout = findViewById(R.id.linearlayout);
@@ -113,17 +117,27 @@ public class LightActivity extends AppCompatActivity {
 
         // Load the switch state and selected color from SharedPreferences
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        boolean switchState = preferences.getBoolean(SWITCH_STATE_KEY, false);
+        boolean switchState = preferences.getBoolean(SWITCH_STATE_KEY, switchDefaultValue);
         selectedColor = preferences.getInt(SELECTED_COLOR_KEY, 0); // Default color 0 (usually black)
-      //  switchPower.setChecked(switchState);
+        switchPower.setChecked(switchState);
+
+        // Si no esta seleccionado escondo todo lo de los colores
+        if(!switchState){
+            textView.setVisibility(View.INVISIBLE);
+            linearlayout.setVisibility(View.INVISIBLE);
+            btnConfirm.setVisibility(View.INVISIBLE);
+            imageView.setVisibility(View.INVISIBLE);
+        }
 
         // Set initial visibility based on the Switch state
         bluetoothManager.sendCommand("L");
 
         // Set the initial color of the ImageView if a color was previously selected
         if (selectedColor != 0) {
-            layout.setBackgroundColor(selectedColor); // Cambiar el color de fondo del layout
-            imageView.setColorFilter(selectedColor); // Cambiar el color del ImageView
+            // Cambiar el color de fondo del layout
+            layout.setBackgroundColor(selectedColor);
+            // Cambiar el color del ImageView
+            imageView.setColorFilter(selectedColor);
             // Enviar comando de color al Arduino
 //            int red = Color.red(selectedColor);
 //            int green = Color.green(selectedColor);
@@ -174,6 +188,11 @@ public class LightActivity extends AppCompatActivity {
         if (accelerometerSensor != null) {
             sensorManager.registerListener(accelerometerEventListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
+        // Load the switch state and selected color from SharedPreferences
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean switchState = preferences.getBoolean(SWITCH_STATE_KEY, switchDefaultValue);
+        selectedColor = preferences.getInt(SELECTED_COLOR_KEY, 0); // Default color 0 (usually black)
+        switchPower.setChecked(switchState);
     }
 
     @Override
@@ -193,23 +212,25 @@ public class LightActivity extends AppCompatActivity {
             if (receivedMessage.contains("DAY")){
                 // Si esta en modo dia la luz se apaga
                 switchPower.setChecked(false);
+                switchDefaultValue = false;
 
-                int initialVisibility = View.INVISIBLE;
-                textView.setVisibility(initialVisibility);
-                linearlayout.setVisibility(initialVisibility);
-                btnConfirm.setVisibility(initialVisibility);
-                imageView.setVisibility(initialVisibility);
+//               int initialVisibility = View.INVISIBLE;
+//               textView.setVisibility(initialVisibility);
+//               linearlayout.setVisibility(initialVisibility);
+//               btnConfirm.setVisibility(initialVisibility);
+//               imageView.setVisibility(initialVisibility);
 
-                Log.d("MODO DIA! LUZ SE DEBE APAGAR", "Received message: " + receivedMessage);
+                Log.d("HandleMessageModoDia", "Received message: " + receivedMessage);
 
             } else {
                 switchPower.setChecked(true);
-                int initialVisibility = View.VISIBLE;
-                textView.setVisibility(initialVisibility);
-                linearlayout.setVisibility(initialVisibility);
-                btnConfirm.setVisibility(initialVisibility);
-                imageView.setVisibility(initialVisibility);
-                Log.d("MODO NOCHE! LUZ SE DEBE PRENDER", "Received message: " + receivedMessage);
+                switchDefaultValue = true;
+//                int initialVisibility = View.VISIBLE;
+//                textView.setVisibility(initialVisibility);
+//                linearlayout.setVisibility(initialVisibility);
+//                btnConfirm.setVisibility(initialVisibility);
+//                imageView.setVisibility(initialVisibility);
+                Log.d("HandleMessageModoNoche", "Received message: " + receivedMessage);
 
             }
         }
