@@ -106,16 +106,14 @@ public class LightActivity extends AppCompatActivity {
             }
         });
 
-        // Find the Switch
         switchPower = findViewById(R.id.switch1);
-        // Find the components to make invisible
         textView = findViewById(R.id.textView);
         linearlayout = findViewById(R.id.linearlayout);
-        imageView = findViewById(R.id.imageView); // Casting a ImageView
+        imageView = findViewById(R.id.imageView);
 
         // Load the switch state and selected color from SharedPreferences
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        //boolean switchState = preferences.getBoolean(SWITCH_STATE_KEY, false);
+        boolean switchState = preferences.getBoolean(SWITCH_STATE_KEY, false);
         selectedColor = preferences.getInt(SELECTED_COLOR_KEY, 0); // Default color 0 (usually black)
       //  switchPower.setChecked(switchState);
 
@@ -143,9 +141,12 @@ public class LightActivity extends AppCompatActivity {
             btnConfirm.setVisibility(visibility);
             imageView.setVisibility(visibility);
 
-            //if (isChecked){
+            if (isChecked){
                 bluetoothManager.sendCommand("W");
-            //}
+            }
+
+            Log.d("En el onchanged", "Checkeado: " + isChecked);
+
 
             // Save the switch state to SharedPreferences
             SharedPreferences.Editor editor = preferences.edit();
@@ -189,23 +190,27 @@ public class LightActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("LightActivity", "Received message: " + receivedMessage);
             // Handle the received message
-            if (receivedMessage.contains("DAY") ) {
+            if (receivedMessage.contains("DAY")){
                 // Si esta en modo dia la luz se apaga
                 switchPower.setChecked(false);
 
-                int initialVisibility = false ? View.VISIBLE : View.INVISIBLE;
+                int initialVisibility = View.INVISIBLE;
                 textView.setVisibility(initialVisibility);
                 linearlayout.setVisibility(initialVisibility);
                 btnConfirm.setVisibility(initialVisibility);
                 imageView.setVisibility(initialVisibility);
 
+                Log.d("MODO DIA! LUZ SE DEBE APAGAR", "Received message: " + receivedMessage);
+
             } else {
                 switchPower.setChecked(true);
-                int initialVisibility = true ? View.VISIBLE : View.INVISIBLE;
+                int initialVisibility = View.VISIBLE;
                 textView.setVisibility(initialVisibility);
                 linearlayout.setVisibility(initialVisibility);
                 btnConfirm.setVisibility(initialVisibility);
                 imageView.setVisibility(initialVisibility);
+                Log.d("MODO NOCHE! LUZ SE DEBE PRENDER", "Received message: " + receivedMessage);
+
             }
         }
     };
