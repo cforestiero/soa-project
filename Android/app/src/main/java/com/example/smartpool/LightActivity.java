@@ -97,11 +97,11 @@ public class LightActivity extends AppCompatActivity {
                 // Cambiar el color del VectorDrawable
                 imageView.setColorFilter(selectedColor); // Cambiar el color del ImageView
 
-//                int red = Color.red(selectedColor);
-//                int green = Color.green(selectedColor);
-//                int blue = Color.blue(selectedColor);
-//                String colorData = "C" + red + " " + green + " " + blue + "\n";
-//                bluetoothManager.sendCommand(colorData);
+                int red = Color.red(selectedColor);
+                int green = Color.green(selectedColor);
+                int blue = Color.blue(selectedColor);
+                String colorData = "C " + red + " " + green + " " + blue + "\n";
+                bluetoothManager.sendCommand(colorData);
 
                 // Save the color to SharedPreferences
                 SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
@@ -138,12 +138,12 @@ public class LightActivity extends AppCompatActivity {
             layout.setBackgroundColor(selectedColor);
             // Cambiar el color del ImageView
             imageView.setColorFilter(selectedColor);
-            // Enviar comando de color al Arduino
-//            int red = Color.red(selectedColor);
-//            int green = Color.green(selectedColor);
-//            int blue = Color.blue(selectedColor);
-//            String colorData = "C" + red + " " + green + " " + blue + "\n";
-//            bluetoothManager.sendCommand(colorData); // Enviar el RGB
+            // Enviar comando de color al Arduino esto se puede comentar
+            int red = Color.red(selectedColor);
+            int green = Color.green(selectedColor);
+            int blue = Color.blue(selectedColor);
+            String colorData = "C " + red + " " + green + " " + blue + "\n";
+            bluetoothManager.sendCommand(colorData); // Enviar el RGB
 
         }
 
@@ -155,12 +155,9 @@ public class LightActivity extends AppCompatActivity {
             btnConfirm.setVisibility(visibility);
             imageView.setVisibility(visibility);
 
-            if (isChecked){
-                bluetoothManager.sendCommand("W");
-            }
+            bluetoothManager.sendCommand("W");
 
             Log.d("En el onchanged", "Checkeado: " + isChecked);
-
 
             // Save the switch state to SharedPreferences
             SharedPreferences.Editor editor = preferences.edit();
@@ -214,22 +211,11 @@ public class LightActivity extends AppCompatActivity {
                 switchPower.setChecked(false);
                 switchDefaultValue = false;
 
-//               int initialVisibility = View.INVISIBLE;
-//               textView.setVisibility(initialVisibility);
-//               linearlayout.setVisibility(initialVisibility);
-//               btnConfirm.setVisibility(initialVisibility);
-//               imageView.setVisibility(initialVisibility);
-
                 Log.d("HandleMessageModoDia", "Received message: " + receivedMessage);
 
             } else {
                 switchPower.setChecked(true);
                 switchDefaultValue = true;
-//                int initialVisibility = View.VISIBLE;
-//                textView.setVisibility(initialVisibility);
-//                linearlayout.setVisibility(initialVisibility);
-//                btnConfirm.setVisibility(initialVisibility);
-//                imageView.setVisibility(initialVisibility);
                 Log.d("HandleMessageModoNoche", "Received message: " + receivedMessage);
 
             }
