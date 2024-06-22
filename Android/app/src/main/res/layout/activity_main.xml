@@ -36,17 +36,6 @@
         app:layout_constraintVertical_bias="0.665"
         android:visibility="gone" />
 
-    <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="75dp"
-        android:layout_height="55dp"
-        android:background="#008C8686"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_action_name" />
-
     <Button
         android:id="@+id/buttonInfo"
         android:layout_width="362dp"
@@ -97,5 +86,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.338" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="411dp"
+        android:layout_height="272dp"
+        android:background="#008C8686"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/baseline_pool_24" />
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="75dp"
+        android:layout_height="55dp"
+        android:background="#008C8686"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_action_name" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

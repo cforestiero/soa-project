@@ -27,6 +27,16 @@
             android:name=".ConfigurationsFilterActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"/>
+
+        <activity
+            android:name=".StatsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity
+            android:name=".DewaterActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
         <!-- Parent activity meta-data to support 4.0 and lower -->
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"

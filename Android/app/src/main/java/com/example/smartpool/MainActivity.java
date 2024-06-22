@@ -48,12 +48,13 @@ public class MainActivity extends AppCompatActivity {
         buttonLights = findViewById(R.id.button);
         buttonDewater = findViewById(R.id.buttonDewater);
         rectanglePumpActionTextView = findViewById(R.id.rectangleTextView);
+        Button buttonStats = (Button)findViewById(R.id.buttonInfo);
+        Button buttonDewater = (Button)findViewById(R.id.buttonDewater);
 
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
         bluetoothManager.setHandler(bluetoothIn);
         bluetoothManager.sendCommand(PUMP_MODE);
-        Button buttonLights = (Button)findViewById(R.id.button);
 
         buttonLights.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +67,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, ConfigurationsFilterActivity.class));
+            }
+        });
+
+        buttonStats.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, StatsActivity.class));
+            }
+        });
+
+        buttonDewater.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, DewaterActivity.class));
             }
         });
 
@@ -100,56 +115,3 @@ public class MainActivity extends AppCompatActivity {
             }
         }};
     }
-
-
-//            if (receivedMessage.contains(",")) {
-//                String[] parts = receivedMessage.split(",", 2); // Split into two parts only
-//                if (parts.length == 2) {
-//                    String key = parts[0];
-//                    String value = parts[1];
-//                    Log.d("MainActivity", "Parsed key: " + key + ", value: " + value);
-//                    // Handle the parsed key-value pair
-//                    handleParsedKeyValue(key, value);
-//                } else {
-//                    Log.e("MainActivity", "Received message format is incorrect");
-//                }
-//            } else {
-//                Log.e("MainActivity", "Received message does not contain a comma");
-//            }
-
- //       }
-   // };
-
-//    private void handleParsedKeyValue(String key, String value) {
-//        switch (key) {
-//            case PUMP_MODE:
-//                Log.d("MainActivity", "Handling PUMP_MODE with value: " + value);
-//                if (value.contains("FILTERING_MODE")){
-//                    // Si la bomba esta en modo filtrado entonces se esconde el boton de desagote
-//                    buttonDewater.setVisibility(View.GONE);
-//                }
-//                break;
-//            case PUMP_WORKING:
-//                Log.d("MainActivity", "Handling PUMP_WORKING with value: " + value);
-//                if (value.contains("PROCESS")){
-//                    rectanglePumpActionTextView.setText(value);
-//                    rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
-//                } else {
-//                    rectanglePumpActionTextView.setVisibility(TextView.GONE);
-//                }
-//               // if (value.contains("Filtrando")){
-//                 //   rectanglePumpActionTextView.setText(value);
-//                   // rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
-//                    // Si la bomba esta Filtrando se muestra un coso que dice filtrando
-//                    //buttonDewater.setVisibility(View.);
-//                //}
-//                if (value.contains("NO")){
-//                }
-//                break;
-//            default:
-//                Log.d("MainActivity", "Unknown command: " + key + " with value: " + value);
-//                //Toast.makeText(MainActivity.this, "Unknown command: " + key + " with value: " + value, Toast.LENGTH_SHORT).show();
-//                break;
-//        }
-//    }
-//}
