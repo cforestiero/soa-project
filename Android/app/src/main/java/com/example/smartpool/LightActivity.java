@@ -93,11 +93,11 @@ public class LightActivity extends AppCompatActivity {
                 // Cambiar el color del VectorDrawable
                 imageView.setColorFilter(selectedColor); // Cambiar el color del ImageView
 
-                int red = Color.red(selectedColor);
-                int green = Color.green(selectedColor);
-                int blue = Color.blue(selectedColor);
-                String colorData = "C" + red + " " + green + " " + blue + "\n";
-                bluetoothManager.sendCommand(colorData);
+//                int red = Color.red(selectedColor);
+//                int green = Color.green(selectedColor);
+//                int blue = Color.blue(selectedColor);
+//                String colorData = "C" + red + " " + green + " " + blue + "\n";
+//                bluetoothManager.sendCommand(colorData);
 
                 // Save the color to SharedPreferences
                 SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
@@ -119,9 +119,7 @@ public class LightActivity extends AppCompatActivity {
         selectedColor = preferences.getInt(SELECTED_COLOR_KEY, 0); // Default color 0 (usually black)
         switchPower.setChecked(switchState);
         if (switchState) {
-            bluetoothManager.sendCommand("W"); // ver comando
-        } else {
-            bluetoothManager.sendCommand("OFF"); // ver comando
+            bluetoothManager.sendCommand("W"); // W es para prender
         }
 
         // Set initial visibility based on the Switch state
@@ -136,11 +134,11 @@ public class LightActivity extends AppCompatActivity {
             layout.setBackgroundColor(selectedColor); // Cambiar el color de fondo del layout
             imageView.setColorFilter(selectedColor); // Cambiar el color del ImageView
             // Enviar comando de color al Arduino
-            int red = Color.red(selectedColor);
-            int green = Color.green(selectedColor);
-            int blue = Color.blue(selectedColor);
-            String colorData = "C" + red + " " + green + " " + blue + "\n";
-            bluetoothManager.sendCommand(colorData); // Enviar el RGB
+//            int red = Color.red(selectedColor);
+//            int green = Color.green(selectedColor);
+//            int blue = Color.blue(selectedColor);
+//            String colorData = "C" + red + " " + green + " " + blue + "\n";
+//            bluetoothManager.sendCommand(colorData); // Enviar el RGB
 
         }
 
@@ -152,7 +150,9 @@ public class LightActivity extends AppCompatActivity {
             btnConfirm.setVisibility(visibility);
             imageView.setVisibility(visibility);
 
-            bluetoothManager.sendCommand("W");
+            if (isChecked){
+                bluetoothManager.sendCommand("W");
+            }
 
             // Save the switch state to SharedPreferences
             SharedPreferences.Editor editor = preferences.edit();
@@ -196,6 +196,10 @@ public class LightActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("LightActivity", "Received message: " + receivedMessage);
             // Handle the received message
+            if (receivedMessage.contains("DAY") ) {
+                // Si esta en modo dia la luz se apaga
+                switchPower.setChecked(false);
+            }
         }
     };
 
