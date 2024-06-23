@@ -35,50 +35,51 @@
 
     <TextView
         android:id="@+id/WaterLevelTextView"
-        android:layout_width="299dp"
-        android:layout_height="125dp"
+        android:layout_width="294dp"
+        android:layout_height="54dp"
         android:layout_centerInParent="true"
-        android:layout_marginTop="324dp"
-        android:text="Nivel de Agua: "
-        android:textSize="25sp"
+        android:layout_marginTop="40dp"
+        android:text="Nivel de Agua: -"
+        android:textSize="23sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.625"
+        app:layout_constraintHorizontal_bias="0.581"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/temperatureTextView" />
 
     <TextView
         android:id="@+id/FilterLastTimeTextView"
-        android:layout_width="271dp"
-        android:layout_height="142dp"
+        android:layout_width="299dp"
+        android:layout_height="86dp"
         android:layout_centerInParent="true"
-        android:layout_marginTop="476dp"
-        android:text="Se filtro por ultima vez el: "
-        android:textSize="25sp"
+        android:layout_marginTop="40dp"
+        android:text="Se filtró por última vez el: -"
+        android:textSize="23sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.584"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/WaterLevelTextView" />
 
     <TextView
         android:id="@+id/DrainingLastTimeTextView"
-        android:layout_width="271dp"
-        android:layout_height="143dp"
+        android:layout_width="313dp"
+        android:layout_height="101dp"
         android:layout_centerInParent="true"
-        android:layout_marginTop="632dp"
-        android:text="Se desagoto por ultima vez el: "
-        android:textSize="25sp"
+        android:layout_marginTop="40dp"
+        android:text="Se desagotó por última vez el: -"
+        android:textSize="23sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
+        app:layout_constraintHorizontal_bias="0.704"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/FilterLastTimeTextView" />
 
     <TextView
         android:id="@+id/temperatureTextView"
-        android:layout_width="291dp"
-        android:layout_height="120dp"
+        android:layout_width="294dp"
+        android:layout_height="58dp"
         android:layout_centerInParent="true"
         android:layout_marginTop="180dp"
-        android:text="Temperatura: "
-        android:textSize="25sp"
+        android:text="Temperatura: -"
+        android:textSize="23sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.591"
         app:layout_constraintStart_toStartOf="parent"
