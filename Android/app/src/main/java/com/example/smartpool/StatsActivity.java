@@ -85,6 +85,14 @@ public class StatsActivity extends AppCompatActivity {
             // Obtener ultimo filtrado
             filterLastTime = preferences.getString(Common.FILTER_TIME_KEY, "");
             filterLastTimeTextView.setText(getString(R.string.lastFilterTimeLabel) + filterLastTime);
+
+            // Si en algun momento filtro y estoy aca que se guarde en preferencias
+            if (receivedMessage.contains("Estado Final: FILTERING_PROCESS")) {
+                // Guarda la fecha de filtrado
+                SharedPreferences.Editor editor = getSharedPreferences(Common.PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putString(Common.FILTER_TIME_KEY, Common.getCurrentDateTime());
+                editor.apply();
+            }
         }
     };
 

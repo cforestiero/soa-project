@@ -210,7 +210,14 @@ public class LightActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("LightActivity", "Received message: " + receivedMessage);
             // Handle the received message
-            // Si el evento es por sensor entonces no hago nada
+            // Si en algun momento filtro y estoy aca que se guarde en preferencias
+            if (receivedMessage.contains("Estado Final: FILTERING_PROCESS")) {
+                // Guarda la fecha de filtrado
+                SharedPreferences.Editor editor = getSharedPreferences(Common.PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putString(Common.FILTER_TIME_KEY, Common.getCurrentDateTime());
+                editor.apply();
+            }
+            // Si el evento es por sensor
             if (receivedMessage.contains("Evento: LOW_LIGHT") ||
                     receivedMessage.contains("Evento: MEDIUM_LIGHT") ||
                     receivedMessage.contains("Evento: HIGH_LIGHT")) {
@@ -224,12 +231,14 @@ public class LightActivity extends AppCompatActivity {
                 switchPower.setChecked(false);
                 // Cambia el default para cuando inicia la pantalla de nuevo
                 switchDefaultValue = false;
+                justSinchronizeSwitch = false;
                 Log.d("HandleMessageModoDia", "Received message: " + receivedMessage);
             } else {
                 // Sino esta en modo noche y la luz se prende
                 switchPower.setChecked(true);
                 // Cambia el default para cuando inicia la pantalla de nuevo
                 switchDefaultValue = true;
+                justSinchronizeSwitch = false;
                 Log.d("HandleMessageModoNoche", "Received message: " + receivedMessage);
             }
         }
