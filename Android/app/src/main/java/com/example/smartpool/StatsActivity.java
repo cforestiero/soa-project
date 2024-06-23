@@ -89,26 +89,26 @@ public class StatsActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             String receivedMessage = (String) msg.obj;
             Log.d("StatsActivity", "Received message: " + receivedMessage);
-
             // Parse Message
             String[] lines = receivedMessage.split(",");
             for (String line : lines) {
                 if (line.startsWith("Temperatura del Agua:")) {
-                    temperatureTextView.setText("Temperatura: " + line + "°C");
+                    temperatureTextView.setText(line);
                 } else if (line.startsWith("Distancia del Agua:")) {
-                    if (Integer.parseInt(line) < 100) {
-                        waterLevelTextView.setText("Nivel de Agua: Alto");
-                    } else {
-                        waterLevelTextView.setText("Nivel de Agua: Bajo");
-                    }
+                    waterLevelTextView.setText(line);
+                    //if (Integer.parseInt(line) < 100) {
+                    //    waterLevelTextView.setText("Nivel de Agua: Alto");
+                    // } else {
+                    //   waterLevelTextView.setText("Nivel de Agua: Bajo");
+                    //}
                 }
             }
             // Obtener ultimo desagote
             SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
             drainingLastTime = preferences.getString(DEWATER_TIME_KEY, "");
+            drainingLastTimeTextView.setText("Se desagoto por ultima vez el: " + drainingLastTime);
 
             filterLastTimeTextView.setText("Se filtro por ultima vez el: " + filterLastTime);
-            drainingLastTimeTextView.setText("Se desagoto por ultima vez el: " + drainingLastTime);
         }
     };
 
