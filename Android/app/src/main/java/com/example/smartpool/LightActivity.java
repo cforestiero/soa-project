@@ -206,18 +206,19 @@ public class LightActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("LightActivity", "Received message: " + receivedMessage);
             // Handle the received message
-            if (receivedMessage.contains("DAY")){
-                // Si esta en modo dia la luz se apaga
-                switchPower.setChecked(false);
-                switchDefaultValue = false;
+            if (!( receivedMessage.contains("Evento: LOW_LIGHT") || receivedMessage.contains("Evento: MEDIUM_LIGHT") || receivedMessage.contains("Evento: HIGH_LIGHT"))){
+                if (receivedMessage.contains("DAY")){
+                    // Si esta en modo dia la luz se apaga
+                    switchPower.setChecked(false);
+                    switchDefaultValue = false;
 
-                Log.d("HandleMessageModoDia", "Received message: " + receivedMessage);
+                    Log.d("HandleMessageModoDia", "Received message: " + receivedMessage);
 
-            } else {
-                switchPower.setChecked(true);
-                switchDefaultValue = true;
-                Log.d("HandleMessageModoNoche", "Received message: " + receivedMessage);
-
+                } else {
+                    switchPower.setChecked(true);
+                    switchDefaultValue = true;
+                    Log.d("HandleMessageModoNoche", "Received message: " + receivedMessage);
+                }
             }
         }
     };
