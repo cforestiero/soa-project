@@ -25,14 +25,12 @@ import java.lang.ref.WeakReference;
 public class MainActivity extends AppCompatActivity {
 
     private static final String PUMP_MODE = "B";
-    private static final String PUMP_ACTION = "X";
 
     private BluetoothManager bluetoothManager;
 
     Button buttonLights;
     Button buttonDewater;
     TextView rectanglePumpActionTextView;
-    ImageView boy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         bluetoothManager.setContext(this);
         bluetoothManager.setHandler(bluetoothIn);
         bluetoothManager.sendCommand(PUMP_MODE);
-        bluetoothManager.sendCommand(PUMP_ACTION);
 
         buttonLights.setOnClickListener(new View.OnClickListener() {
             @Override
