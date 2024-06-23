@@ -70,13 +70,11 @@ public class StatsActivity extends AppCompatActivity {
                     // Split words to set level
                     String[] words = line.split(" ");
                     String waterDistance = words[3]; // en este indice tenemos la distancia
-                    if (Integer.parseInt(waterDistance) < 100) {
+                    if (Float.parseFloat(waterDistance) < 100) {
                         waterLevelTextView.setText(R.string.waterLevelHigh);
                     } else {
                         waterLevelTextView.setText(R.string.waterLevelLow);
                     }
-                    // TODO: si esto anda, borrar este comentario
-                    //waterLevelTextView.setText(line);
                 }
             }
             // Obtener ultimo desagote
