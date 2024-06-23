@@ -57,7 +57,7 @@ public class DewaterActivity extends AppCompatActivity {
                 bluetoothManager.sendCommand(DEWATER_SIGNAL_READY);
                 // Guarda la hora de drenado
                 SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-                editor.putString(DEWATER_TIME_KEY, getCurrentTime());
+                editor.putString(DEWATER_TIME_KEY, getCurrentDateTime());
                 editor.apply();
 
                 // Luego, puedes volver a MainActivity
@@ -76,9 +76,9 @@ public class DewaterActivity extends AppCompatActivity {
 
         }};
 
-    private String getCurrentTime() {
+    private String getCurrentDateTime() {
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());
         return sdf.format(calendar.getTime());
     }
 }

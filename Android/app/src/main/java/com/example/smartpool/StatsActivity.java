@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.List;
 
 public class StatsActivity extends AppCompatActivity {
 
@@ -27,8 +29,6 @@ public class StatsActivity extends AppCompatActivity {
     private TextView filterLastTimeTextView;
     private TextView drainingLastTimeTextView;
 
-    private double temperature;
-    private double waterLevel;
     private String filterLastTime;
     private String drainingLastTime;
 
@@ -53,8 +53,6 @@ public class StatsActivity extends AppCompatActivity {
         bluetoothManager.sendCommand(STATS);
 
         // Simulate receiving data from sensors or other sources
-        temperature = getTemperatureFromSensor();
-        waterLevel = getWaterLevelFromSensor();
         filterLastTime = getFilterLastTime();
         drainingLastTime = getDrainingLastTime();
 
@@ -93,16 +91,25 @@ public class StatsActivity extends AppCompatActivity {
             Log.d("StatsActivity", "Received message: " + receivedMessage);
 
             // Parse Message
-
+            String[] lines = receivedMessage.split(",");
+            for (String line : lines) {
+                if (line.startsWith("Temperatura del Agua:")) {
+                    temperatureTextView.setText("Temperatura: " + line + "°C");
+                } else if (line.startsWith("Distancia del Agua:")) {
+                    if (Integer.parseInt(line) < 100) {
+                        waterLevelTextView.setText("Nivel de Agua: Alto");
+                    } else {
+                        waterLevelTextView.setText("Nivel de Agua: Bajo");
+                    }
+                }
+            }
             // Obtener ultimo desagote
             SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
             drainingLastTime = preferences.getString(DEWATER_TIME_KEY, "");
 
-            // Set text
-            temperatureTextView.setText("Temperatura: " + temperature + "°C");
-            waterLevelTextView.setText("Nivel de Agua: " + waterLevel + "%");
             filterLastTimeTextView.setText("Se filtro por ultima vez el: " + filterLastTime);
             drainingLastTimeTextView.setText("Se desagoto por ultima vez el: " + drainingLastTime);
-        }};
+        }
+    };
 
 }
