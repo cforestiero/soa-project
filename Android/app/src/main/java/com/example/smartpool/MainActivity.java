@@ -2,6 +2,7 @@ package com.example.smartpool;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.SensorManager;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
@@ -88,6 +89,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bluetoothManager.sendCommand(PUMP_MODE);
     }
 
     final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
