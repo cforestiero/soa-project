@@ -20,10 +20,10 @@
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="327dp"
-        android:layout_height="82dp"
+        android:layout_width="330dp"
+        android:layout_height="117dp"
         android:layout_marginTop="84dp"
-        android:text="Seleccionar tiempo de filtrado"
+        android:text="Seleccionar cada cuanto tiempo se filtrará (hs)"
         android:textAlignment="center"
         android:textColor="#0442FF"
         android:textSize="27dp"
@@ -48,48 +48,16 @@
         android:id="@+id/textView3"
         android:layout_width="327dp"
         android:layout_height="82dp"
-        android:layout_marginTop="348dp"
-        android:text="El proximo filtrado iniciara en:"
+        android:layout_marginTop="396dp"
+        android:text="Duración del fitrado: 30 min"
         android:textAlignment="center"
-        android:textColor="#0442FF"
-        android:textSize="27dp"
+        android:textColor="#010D32"
+        android:textSize="20dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.523"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-
-    <!-- Botón para incrementar el valor -->
-
-    <!-- Botón para decrementar el valor -->
-
-    <LinearLayout
-        android:layout_width="72dp"
-        android:layout_height="58dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        app:layout_constraintVertical_bias="0.111">
-
-        <TextView
-            android:id="@+id/textViewNumber"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="0"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hrs"
-            android:textSize="18sp"
-            android:textStyle="italic" />
-    </LinearLayout>
 
     <Button
         android:id="@+id/incrementButton"

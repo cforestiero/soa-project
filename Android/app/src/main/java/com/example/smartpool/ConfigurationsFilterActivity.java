@@ -43,12 +43,11 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
 
         // Encuentra la referencia del NumberPicker y del TextView
         NumberPicker numberPicker = findViewById(R.id.numberPicker);
-        TextView textViewNumber = findViewById(R.id.textViewNumber);
 
         // Set the range for the NumberPicker
-        numberPicker.setMinValue(0); // Set to your desired minimum value
-        numberPicker.setMaxValue(100); // Set to your desired maximum value
-        numberPicker.setValue(50); // Set to your desired initial value
+        numberPicker.setMinValue(1); // Set to your desired minimum value
+        numberPicker.setMaxValue(12); // Set to your desired maximum value
+        numberPicker.setValue(4); // Set to your desired initial value
 
         // Encuentra las referencias de los botones de incremento y decremento
         Button incrementButton = findViewById(R.id.incrementButton);
