@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StatsActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:titleTextColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/Estadistica"
+        android:layout_width="207dp"
+        android:layout_height="58dp"
+        android:layout_centerInParent="true"
+        android:text="Estadísticas"
+        android:textColor="#0442FF"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.129" />
+
+    <TextView
+        android:id="@+id/WaterLevelTextView"
+        android:layout_width="294dp"
+        android:layout_height="54dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="40dp"
+        android:text="Nivel de Agua: -"
+        android:textSize="23sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.581"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/temperatureTextView" />
+
+    <TextView
+        android:id="@+id/FilterLastTimeTextView"
+        android:layout_width="299dp"
+        android:layout_height="86dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="40dp"
+        android:text="Se filtró por última vez el: -"
+        android:textSize="23sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.584"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/WaterLevelTextView" />
+
+    <TextView
+        android:id="@+id/DrainingLastTimeTextView"
+        android:layout_width="313dp"
+        android:layout_height="101dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="40dp"
+        android:text="Se desagotó por última vez el: -"
+        android:textSize="23sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.704"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/FilterLastTimeTextView" />
+
+    <TextView
+        android:id="@+id/temperatureTextView"
+        android:layout_width="294dp"
+        android:layout_height="58dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="180dp"
+        android:text="Temperatura: -"
+        android:textSize="23sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.591"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

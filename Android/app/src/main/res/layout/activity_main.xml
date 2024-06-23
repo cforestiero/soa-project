@@ -8,6 +8,66 @@
     android:background="@drawable/smart_pool_background"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:id="@+id/boy"
+        android:layout_width="411dp"
+        android:layout_height="272dp"
+        android:background="#008C8686"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/baseline_pool_24" />
+
+    <TextView
+        android:id="@+id/rectangleTextView"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/rectangle_background"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="info"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        app:layout_constraintVertical_bias="0.665"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/buttonInfo"
+        android:layout_width="362dp"
+        android:layout_height="104dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginBottom="15dp"
+        android:text="@string/stats"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/buttonDewater"
+        android:layout_width="363dp"
+        android:layout_height="104dp"
+        android:fontFamily="sans-serif"
+        android:lineSpacingExtra="8sp"
+        android:text="@string/dewater"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        android:typeface="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        app:layout_constraintVertical_bias="0.031" />
+
     <Button
         android:id="@+id/button"
         android:layout_width="363dp"
@@ -15,66 +75,17 @@
         android:drawableTint="#00402F2F"
         android:fontFamily="sans-serif"
         android:lineSpacingExtra="8sp"
-        android:text="@string/luces"
+        android:text="@string/lights"
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textSize="20sp"
         android:typeface="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.15" />
-
-    <Button
-        android:id="@+id/buttonFilter"
-        android:layout_width="363dp"
-        android:layout_height="104dp"
-        android:enabled="false"
-        android:fontFamily="sans-serif"
-        android:lineSpacingExtra="8sp"
-        android:text="@string/filtrar"
-        android:textAlignment="center"
-        android:textAllCaps="false"
-        android:textSize="20sp"
-        android:typeface="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.333" />
-
-    <Button
-        android:id="@+id/buttonDewater"
-        android:layout_width="363dp"
-        android:layout_height="104dp"
-        android:enabled="false"
-        android:fontFamily="sans-serif"
-        android:lineSpacingExtra="8sp"
-        android:text="@string/desagote"
-        android:textAlignment="center"
-        android:textAllCaps="false"
-        android:textSize="20sp"
-        android:typeface="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.515" />
-
-    <Switch
-        android:id="@+id/switch1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Luz"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.925"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.046" />
+        app:layout_constraintVertical_bias="0.338" />
 
     <ImageView
         android:id="@+id/imageView4"
@@ -84,5 +95,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/baseline_pool_24" />
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="75dp"
+        android:layout_height="55dp"
+        android:background="#008C8686"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_action_name" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
