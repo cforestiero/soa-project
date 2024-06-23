@@ -20,9 +20,6 @@ import java.util.List;
 public class StatsActivity extends AppCompatActivity {
 
     private static final String STATS = "I";
-    private static String PREFS_NAME = "StatsPrefs";
-    private static String DEWATER_TIME_KEY = "LastDewaterTime";
-    private static String FILTER_TIME_KEY = "LastFilterTime";
     private BluetoothManager bluetoothManager;
 
     private TextView temperatureTextView;
@@ -53,36 +50,10 @@ public class StatsActivity extends AppCompatActivity {
         bluetoothManager.setHandler(bluetoothIn);
         bluetoothManager.sendCommand(STATS);
 
-        // Simulate receiving data from sensors or other sources
-        filterLastTime = getFilterLastTime();
-        drainingLastTime = getDrainingLastTime();
-
-        // Find the TextViews and set the text
         temperatureTextView = findViewById(R.id.temperatureTextView);
         waterLevelTextView = findViewById(R.id.WaterLevelTextView);
         filterLastTimeTextView = findViewById(R.id.FilterLastTimeTextView);
         drainingLastTimeTextView = findViewById(R.id.DrainingLastTimeTextView);
-    }
-
-    // Simulated methods for getting data from sensors
-    private double getTemperatureFromSensor() {
-        // Replace with actual sensor data retrieval
-        return 25.5;
-    }
-
-    private double getWaterLevelFromSensor() {
-        // Replace with actual sensor data retrieval
-        return 75.0;
-    }
-
-    private String getFilterLastTime() {
-        // Replace with actual data retrieval
-        return "2024-06-01";
-    }
-
-    private String getDrainingLastTime() {
-        // Replace with actual data retrieval
-        return "2024-06-15";
     }
 
     final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
@@ -96,21 +67,26 @@ public class StatsActivity extends AppCompatActivity {
                 if (line.startsWith("Temperatura del Agua:")) {
                     temperatureTextView.setText(line);
                 } else if (line.startsWith("Distancia del Agua:")) {
-                    waterLevelTextView.setText(line);
-                    //if (Integer.parseInt(line) < 100) {
-                    //    waterLevelTextView.setText("Nivel de Agua: Alto");
-                    // } else {
-                    //   waterLevelTextView.setText("Nivel de Agua: Bajo");
-                    //}
+                    // Split words to set level
+                    String[] words = line.split(" ");
+                    String waterDistance = words[3]; // en este indice tenemos la distancia
+                    if (Integer.parseInt(waterDistance) < 100) {
+                        waterLevelTextView.setText(R.string.waterLevelHigh);
+                    } else {
+                        waterLevelTextView.setText(R.string.waterLevelLow);
+                    }
+                    // TODO: si esto anda, borrar este comentario
+                    //waterLevelTextView.setText(line);
                 }
             }
             // Obtener ultimo desagote
-            SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            drainingLastTime = preferences.getString(DEWATER_TIME_KEY, "");
-            drainingLastTimeTextView.setText("Se desagoto por ultima vez el: " + drainingLastTime);
+            SharedPreferences preferences = getSharedPreferences(Common.PREFS_NAME, MODE_PRIVATE);
+            drainingLastTime = preferences.getString(Common.DEWATER_TIME_KEY, "");
+            drainingLastTimeTextView.setText(getString(R.string.lastDewaterTimeLabel) + drainingLastTime);
 
-            filterLastTime = preferences.getString(FILTER_TIME_KEY, "");
-            filterLastTimeTextView.setText("Se filtro por ultima vez el: " + filterLastTime);
+            // Obtener ultimo filtrado
+            filterLastTime = preferences.getString(Common.FILTER_TIME_KEY, "");
+            filterLastTimeTextView.setText(getString(R.string.lastFilterTimeLabel) + filterLastTime);
         }
     };
 

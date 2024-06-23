@@ -2,16 +2,11 @@ package com.example.smartpool;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.NumberPicker;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -21,6 +16,10 @@ import java.lang.ref.WeakReference;
 public class ConfigurationsFilterActivity extends AppCompatActivity {
 
     private static final String FILTER_SCHEDULE = "A";
+    private static final int MIN_FILTER_HOURS = 1;
+    private static final int MAX_FILTER_HOURS = 12;
+    private static final int DEFAULT_FILTER_HOURS = 4;
+
 
     private BluetoothManager bluetoothManager;
 
@@ -31,7 +30,6 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
 
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
-        bluetoothManager.setHandler(bluetoothIn);
 
         // Set up the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -43,76 +41,51 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // Encuentra la referencia del NumberPicker y del TextView
         NumberPicker numberPicker = findViewById(R.id.numberPicker);
-
-        // Set the range for the NumberPicker
-        numberPicker.setMinValue(1); // Set to your desired minimum value
-        numberPicker.setMaxValue(12); // Set to your desired maximum value
-        numberPicker.setValue(4); // Set to your desired initial value
-
-        // Encuentra las referencias de los botones de incremento y decremento
         Button incrementButton = findViewById(R.id.incrementButton);
         Button decrementButton = findViewById(R.id.decrementButton);
 
-        // Establece un listener para el NumberPicker para actualizar el TextView cuando cambie
+        // Set valor maximo y minimo para seleccionar las horas en el numberPicker
+        numberPicker.setMinValue(MIN_FILTER_HOURS);
+        numberPicker.setMaxValue(MAX_FILTER_HOURS);
+        numberPicker.setValue(DEFAULT_FILTER_HOURS); // Set valor inicial
+
+        // Establece un listener para el NumberPicker para actualizar el valor del numberPicker
         numberPicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
             numberPicker.setValue(newVal);
-            Log.d("CAMBIO", "Received message: " + newVal);
-
-            // Actualiza el TextView con el nuevo valor del NumberPicker
-            //textViewNumber.setText(String.valueOf(newVal));
         });
 
-        // Establece un listener para el botón de incremento
+        // Establece un listener para el botón de incremento(+)
         incrementButton.setOnClickListener(v -> {
             // Incrementa el valor del NumberPicker
-            Log.d("incremento", "Received message: " + (numberPicker.getValue() + 1));
-
             int currentVal = numberPicker.getValue();
             if (currentVal < numberPicker.getMaxValue()) {
                 numberPicker.setValue(currentVal + 1);
             }
         });
 
-        // Establece un listener para el botón de decremento
+        // Establece un listener para el botón de decremento(-)
         decrementButton.setOnClickListener(v -> {
             // Decrementa el valor del NumberPicker
-            Log.d("decremento", "Received message: " + (numberPicker.getValue() - 1));
             int currentVal = numberPicker.getValue();
             if (currentVal > numberPicker.getMinValue()) {
                 numberPicker.setValue(currentVal - 1);
             }
         });
 
-        Button confirmButton = findViewById(R.id.button2);
+        Button confirmButton = findViewById(R.id.confirmFilter);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Aquí puedes agregar código para realizar alguna acción antes de volver a MainActivity
-                // Por ejemplo, guardar datos, realizar operaciones, etc.
+                // Envio del dato que selecciono el usuario al Arduino
                 int filterHours = numberPicker.getValue();
-                String command = FILTER_SCHEDULE + " " + hoursToMilliseconds(filterHours) + "\n";
+                String command = FILTER_SCHEDULE + " " + Common.hoursToMilliseconds(filterHours) + "\n";
                 bluetoothManager.sendCommand(command);
 
-                // Luego, puedes volver a MainActivity
                 Intent intent = new Intent(ConfigurationsFilterActivity.this, MainActivity.class);
                 startActivity(intent);
-                finish(); // Esto evita que la actividad actual quede en el stack
+                finish();
             }
         });
-    }
-
-    final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            String receivedMessage = (String) msg.obj;
-            Log.d("ConfigurationFilterActivity", "Received message: " + receivedMessage);
-            // Handle the received message
-        }
-    };
-
-    public static long hoursToMilliseconds(int hours) {
-        return hours * 60L * 60L * 1000L;
     }
 }

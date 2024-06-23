@@ -19,7 +19,7 @@
 
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/confirmFilter"
         android:layout_width="268dp"
         android:layout_height="78dp"
         android:layout_marginBottom="48dp"

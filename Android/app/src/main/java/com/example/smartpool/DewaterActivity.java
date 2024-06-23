@@ -9,7 +9,6 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -24,9 +23,6 @@ import java.util.Locale;
 public class DewaterActivity extends AppCompatActivity {
 
     private static final String DEWATER_SIGNAL_READY = "D";
-    private static String PREFS_NAME = "StatsPrefs";
-    private static String DEWATER_TIME_KEY = "LastDewaterTime";
-
     private BluetoothManager bluetoothManager;
 
     @Override
@@ -44,11 +40,10 @@ public class DewaterActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Button confirmButton = findViewById(R.id.button2);
+        Button confirmButton = findViewById(R.id.confirmFilter);
 
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
-        bluetoothManager.setHandler(bluetoothIn);
 
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,29 +51,14 @@ public class DewaterActivity extends AppCompatActivity {
                 // Se envia command para que la bomba ande
                 bluetoothManager.sendCommand(DEWATER_SIGNAL_READY);
                 // Guarda la hora de drenado
-                SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-                editor.putString(DEWATER_TIME_KEY, getCurrentDateTime());
+                SharedPreferences.Editor editor = getSharedPreferences(Common.PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putString(Common.DEWATER_TIME_KEY, Common.getCurrentDateTime());
                 editor.apply();
 
-                // Luego, puedes volver a MainActivity
                 Intent intent = new Intent(DewaterActivity.this, MainActivity.class);
                 startActivity(intent);
-                finish(); // Esto evita que la actividad actual quede en el stack
+                finish();
             }
         });
-    }
-
-    final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            String receivedMessage = (String) msg.obj;
-            Log.d("DewaterActivity", "Received message: " + receivedMessage);
-
-        }};
-
-    private String getCurrentDateTime() {
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());
-        return sdf.format(calendar.getTime());
     }
 }

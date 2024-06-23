@@ -32,9 +32,16 @@ import androidx.core.view.WindowInsetsCompat;
 import java.lang.ref.WeakReference;
 
 public class LightActivity extends AppCompatActivity {
+
+    private static final String LIGHTS = "L";
+    private static final String CHANGE_COLOUR = "C";
+    private static final String SWITCH_MODE = "W";
+
     private static final String PREFS_NAME = "LightActivityPrefs";
     private static final String SWITCH_STATE_KEY = "switch_state";
     private Boolean switchDefaultValue = false;
+    private Boolean justSinchronizeSwitch = false;
+
 
     private static final String SELECTED_COLOR_KEY = "selected_color";
 
@@ -94,13 +101,12 @@ public class LightActivity extends AppCompatActivity {
                 selectedColor = ((ColorDrawable) layout.getBackground()).getColor();
                 Toast.makeText(LightActivity.this, "Color seleccionado guardado", Toast.LENGTH_SHORT).show();
 
-                // Cambiar el color del VectorDrawable
-                imageView.setColorFilter(selectedColor); // Cambiar el color del ImageView
+                imageView.setColorFilter(selectedColor);
 
                 int red = Color.red(selectedColor);
                 int green = Color.green(selectedColor);
                 int blue = Color.blue(selectedColor);
-                String colorData = "C " + red + " " + green + " " + blue + "\n";
+                String colorData = CHANGE_COLOUR + " " + red + " " + green + " " + blue + "\n";
                 bluetoothManager.sendCommand(colorData);
 
                 // Save the color to SharedPreferences
@@ -122,15 +128,13 @@ public class LightActivity extends AppCompatActivity {
         switchPower.setChecked(switchState);
 
         // Si no esta seleccionado escondo todo lo de los colores
-        if(!switchState){
+        if (!switchState) {
             textView.setVisibility(View.INVISIBLE);
             linearlayout.setVisibility(View.INVISIBLE);
             btnConfirm.setVisibility(View.INVISIBLE);
             imageView.setVisibility(View.INVISIBLE);
         }
-
-        // Set initial visibility based on the Switch state
-        bluetoothManager.sendCommand("L");
+        bluetoothManager.sendCommand(LIGHTS);
 
         // Set the initial color of the ImageView if a color was previously selected
         if (selectedColor != 0) {
@@ -138,13 +142,12 @@ public class LightActivity extends AppCompatActivity {
             layout.setBackgroundColor(selectedColor);
             // Cambiar el color del ImageView
             imageView.setColorFilter(selectedColor);
-            // Enviar comando de color al Arduino esto se puede comentar
+            // Enviar comando de color al Arduino
             int red = Color.red(selectedColor);
             int green = Color.green(selectedColor);
             int blue = Color.blue(selectedColor);
-            String colorData = "C " + red + " " + green + " " + blue + "\n";
+            String colorData = CHANGE_COLOUR + " " + red + " " + green + " " + blue + "\n";
             bluetoothManager.sendCommand(colorData); // Enviar el RGB
-
         }
 
         // Set the listener for the Switch
@@ -155,9 +158,10 @@ public class LightActivity extends AppCompatActivity {
             btnConfirm.setVisibility(visibility);
             imageView.setVisibility(visibility);
 
-            bluetoothManager.sendCommand("W");
-
-            Log.d("En el onchanged", "Checkeado: " + isChecked);
+            // Si no necesita solo sincronizar el switch de la app
+            // le envio el comando para que se apague o se prenda tambien
+            if (!justSinchronizeSwitch)
+                bluetoothManager.sendCommand(SWITCH_MODE);
 
             // Save the switch state to SharedPreferences
             SharedPreferences.Editor editor = preferences.edit();
@@ -206,19 +210,27 @@ public class LightActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("LightActivity", "Received message: " + receivedMessage);
             // Handle the received message
-            if (!( receivedMessage.contains("Evento: LOW_LIGHT") || receivedMessage.contains("Evento: MEDIUM_LIGHT") || receivedMessage.contains("Evento: HIGH_LIGHT"))){
-                if (receivedMessage.contains("DAY")){
-                    // Si esta en modo dia la luz se apaga
-                    switchPower.setChecked(false);
-                    switchDefaultValue = false;
-
-                    Log.d("HandleMessageModoDia", "Received message: " + receivedMessage);
-
-                } else {
-                    switchPower.setChecked(true);
-                    switchDefaultValue = true;
-                    Log.d("HandleMessageModoNoche", "Received message: " + receivedMessage);
-                }
+            // Si el evento es por sensor entonces no hago nada
+            if (receivedMessage.contains("Evento: LOW_LIGHT") ||
+                    receivedMessage.contains("Evento: MEDIUM_LIGHT") ||
+                    receivedMessage.contains("Evento: HIGH_LIGHT")) {
+                // Sincronizar el switch de la app pero sin cambiar en el circuito
+                justSinchronizeSwitch = true;
+                return;
+            }
+            // Sino me fijo el modo
+            if (receivedMessage.contains("DAY")) {
+                // Si esta en modo dia la luz se apaga
+                switchPower.setChecked(false);
+                // Cambia el default para cuando inicia la pantalla de nuevo
+                switchDefaultValue = false;
+                Log.d("HandleMessageModoDia", "Received message: " + receivedMessage);
+            } else {
+                // Sino esta en modo noche y la luz se prende
+                switchPower.setChecked(true);
+                // Cambia el default para cuando inicia la pantalla de nuevo
+                switchDefaultValue = true;
+                Log.d("HandleMessageModoNoche", "Received message: " + receivedMessage);
             }
         }
     };

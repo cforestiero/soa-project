@@ -52,7 +52,7 @@
         android:layout_height="52dp"
         android:layout_marginTop="92dp"
         android:gravity="center"
-        android:text="@string/seleccione_color_del_led"
+        android:text="@string/selectColourLabel"
         android:textColor="#0442FF"
         android:textSize="20sp"
         android:textStyle="bold"

@@ -29,10 +29,9 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private static final String PUMP_MODE = "B";
-    private static String PREFS_NAME = "StatsPrefs";
-    private static String FILTER_TIME_KEY = "LastFilterTime";
-
     private BluetoothManager bluetoothManager;
+
+    // TODO: Agregar mensajes del handler como constantes
 
     Button buttonLights;
     Button buttonDewater;
@@ -49,12 +48,12 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        ImageButton configButton = (ImageButton) findViewById(R.id.imageButton);
+        ImageButton configButton = findViewById(R.id.imageButton);
         buttonLights = findViewById(R.id.button);
         buttonDewater = findViewById(R.id.buttonDewater);
         rectanglePumpActionTextView = findViewById(R.id.rectangleTextView);
-        Button buttonStats = (Button)findViewById(R.id.buttonInfo);
-        Button buttonDewater = (Button)findViewById(R.id.buttonDewater);
+        Button buttonStats = findViewById(R.id.buttonInfo);
+        Button buttonDewater = findViewById(R.id.buttonDewater);
 
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
@@ -91,13 +90,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-     final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
+    final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             String receivedMessage = (String) msg.obj;
             Log.d("MainActivity", "Received message: " + receivedMessage);
             // Handle the received message
-            // TODO: ARREGLAR ESTE HANDLER
             if (receivedMessage.contains("Estado Final: FILTERING") || receivedMessage.contains("B,Filtrado")) {
                 // Si la bomba esta en modo filtrado entonces se esconde el boton de desagote
                 buttonDewater.setVisibility(View.GONE);
@@ -105,32 +103,31 @@ public class MainActivity extends AppCompatActivity {
                 buttonDewater.setVisibility(View.VISIBLE);
             }
 
-            if (receivedMessage.contains("PROCESS")) {
-                // Si la bomba esta andando
-                if (receivedMessage.contains("Estado Final: FILTERING")) {
-                    // Y esta filtrando
-                    rectanglePumpActionTextView.setText("Filtrando... ");
+            if(!receivedMessage.contains("B,Filtrado")){
+                // Si no entro por modo de bomba, quiere decir que estoy manejando otro tipo de mensaje
+                // Entonces checkeo que haya un proceso en curso
+                if (receivedMessage.contains("PROCESS")) {
+                    // Si la bomba esta andando
+                    if (receivedMessage.contains("Estado Final: FILTERING")) {
+                        // Y esta filtrando
+                        rectanglePumpActionTextView.setText(R.string.filteringProcessMessage);
+                    } else {
+                        // Sino, esta drenando
+                        rectanglePumpActionTextView.setText(R.string.dewateringProcessMessage);
+                    }
+                    rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
                 } else {
-                    // Sino, esta drenando
-                    rectanglePumpActionTextView.setText("Desagotando... ");
+                    // Si la bomba no esta haciendo nada entonces se esconde el mensaje
+                    rectanglePumpActionTextView.setVisibility(TextView.GONE);
                 }
-                rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
-            } else {
-                // Si la bomba no esta haciendo nada entonces se esconde el mensaje
-                rectanglePumpActionTextView.setVisibility(TextView.GONE);
             }
 
-            if (receivedMessage.contains("Estado Final: FILTERING_PROCESS")){
+            if (receivedMessage.contains("Estado Final: FILTERING_PROCESS")) {
                 // Guarda la fecha de filtrado
-                SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-                editor.putString(FILTER_TIME_KEY, getCurrentDateTime());
+                SharedPreferences.Editor editor = getSharedPreferences(Common.PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putString(Common.FILTER_TIME_KEY, Common.getCurrentDateTime());
                 editor.apply();
             }
-        }};
-
-    private String getCurrentDateTime() {
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());
-        return sdf.format(calendar.getTime());
-    }
-    }
+        }
+    };
+}

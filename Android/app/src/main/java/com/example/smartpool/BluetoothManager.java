@@ -23,7 +23,7 @@ import java.util.UUID;
 public class BluetoothManager {
 
     private static final int REQUEST_BLUETOOTH_PERMISSION = 1;
-    private static final String DEVICE_ADDRESS = "98:D3:31:F6:A0:71"; // Reemplazar con la dirección MAC del módulo Bluetooth
+    private static final String DEVICE_ADDRESS = "98:D3:31:F6:A0:71"; // Dirección MAC del módulo Bluetooth
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     private static BluetoothManager instance;
@@ -37,8 +37,8 @@ public class BluetoothManager {
     private BluetoothManager(WeakReference<Context> contextWeakReference, Activity activity) {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(DEVICE_ADDRESS);
-
         try {
+            // Checkear permisos de bluetooth
             if (ActivityCompat.checkSelfPermission(contextWeakReference.get(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity,
                         new String[]{Manifest.permission.BLUETOOTH_CONNECT},
@@ -48,9 +48,7 @@ public class BluetoothManager {
             bluetoothSocket.connect();
             bufferedReader = new BufferedReader(new InputStreamReader(bluetoothSocket.getInputStream()));
             outputStream = bluetoothSocket.getOutputStream();
-
             Log.d("BluetoothManager", "Bluetooth connection established");
-
         } catch (IOException e) {
             Log.e("BluetoothManager", "Error establishing Bluetooth connection", e);
             e.printStackTrace();
@@ -78,11 +76,12 @@ public class BluetoothManager {
             Log.d("BluetoothManager", "ConnectedThread started");
             while (true) {
                 try {
-                    if(bufferedReader != null){
+                    if (bufferedReader != null) {
                         String data = bufferedReader.readLine();
                         if (data != null && handler != null) {
                             Log.d("BluetoothManager", "Received data: " + data);
                             Message msg = handler.obtainMessage(0, data);
+                            // TODO: Borrar este log
                             Log.d("RECIBO", "Data recibida: " + msg);
                             handler.sendMessage(msg);
                         }
@@ -100,6 +99,7 @@ public class BluetoothManager {
         try {
             if (outputStream != null) {
                 outputStream.write(command.getBytes());
+                // TODO: Borrar este log
                 Log.d("ENVIO", "Data sent: " + command);
             }
         } catch (IOException e) {
