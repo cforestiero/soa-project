@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonDewater.setVisibility(View.VISIBLE);
             }
 
-            if(!receivedMessage.contains("B,Filtrado")){
+            if(!receivedMessage.contains("B,Filtrado") && !receivedMessage.contains("B,Drenaje")){
                 // Si no entro por modo de bomba, quiere decir que estoy manejando otro tipo de mensaje
                 // Entonces checkeo que haya un proceso en curso
                 if (receivedMessage.contains("PROCESS")) {
