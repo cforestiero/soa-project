@@ -91,7 +91,9 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Aquí puedes agregar código para realizar alguna acción antes de volver a MainActivity
                 // Por ejemplo, guardar datos, realizar operaciones, etc.
-
+                int filterHours = numberPicker.getValue();
+                String command = FILTER_SCHEDULE + " " + hoursToMilliseconds(filterHours) + "\n";
+                bluetoothManager.sendCommand(command);
 
                 // Luego, puedes volver a MainActivity
                 Intent intent = new Intent(ConfigurationsFilterActivity.this, MainActivity.class);
@@ -109,4 +111,8 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
             // Handle the received message
         }
     };
+
+    public static long hoursToMilliseconds(int hours) {
+        return hours * 60L * 60L * 1000L;
+    }
 }

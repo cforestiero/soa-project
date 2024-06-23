@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 rectanglePumpActionTextView.setVisibility(TextView.GONE);
             }
 
-            if (receivedMessage.contains("Estado Final: FILTERING")){
+            if (receivedMessage.contains("Estado Final: FILTERING_PROCESS")){
                 // Guarda la fecha de filtrado
                 SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                 editor.putString(FILTER_TIME_KEY, getCurrentDateTime());
