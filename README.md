@@ -40,7 +40,7 @@ El proyecto **Smart Pool** consiste en la creación de un sistema automatizado p
 
 ### Diagrama de Navegación
 
-![Diagrama de Navegación](Diagrama de Navegación.jpg)
+![Diagrama de Navegación](Diagrama_Navegacion.jpg)
 
 ### Activities
 
@@ -52,6 +52,9 @@ El proyecto **Smart Pool** consiste en la creación de un sistema automatizado p
 - DewaterActivity: Pantalla de confirmación del desagote de la piscina. Debe asegurarse de posicionar correctamente la manguera conectada a la bomba de agua (fuera de la piscina), ya que dicha confirmación implicará el encendido de la bomba de agua, la cual expulsará el agua a través de dicha manguera.
 
 ## Enlaces de Acceso
+
 [Informe TP1](TP1_Lunes_3.pdf)
+
 [Informe TP2](TP2_Lunes_3.pdf)
+
 [Proyecto en Tinkercad](https://www.tinkercad.com/things/5F3eic6dEa0-smart-pool?sharecode=aoe_hmcSV0sjEGT4X_fzpzt_i47zsqm5JbVrOVHj2Xw)
