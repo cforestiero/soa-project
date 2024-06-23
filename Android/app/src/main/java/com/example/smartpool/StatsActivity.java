@@ -22,6 +22,7 @@ public class StatsActivity extends AppCompatActivity {
     private static final String STATS = "I";
     private static String PREFS_NAME = "StatsPrefs";
     private static String DEWATER_TIME_KEY = "LastDewaterTime";
+    private static String FILTER_TIME_KEY = "LastFilterTime";
     private BluetoothManager bluetoothManager;
 
     private TextView temperatureTextView;
@@ -108,6 +109,7 @@ public class StatsActivity extends AppCompatActivity {
             drainingLastTime = preferences.getString(DEWATER_TIME_KEY, "");
             drainingLastTimeTextView.setText("Se desagoto por ultima vez el: " + drainingLastTime);
 
+            filterLastTime = preferences.getString(FILTER_TIME_KEY, "");
             filterLastTimeTextView.setText("Se filtro por ultima vez el: " + filterLastTime);
         }
     };

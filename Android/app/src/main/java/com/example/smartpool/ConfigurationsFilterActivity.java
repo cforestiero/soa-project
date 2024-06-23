@@ -20,6 +20,8 @@ import java.lang.ref.WeakReference;
 
 public class ConfigurationsFilterActivity extends AppCompatActivity {
 
+    private static final String FILTER_SCHEDULE = "A";
+
     private BluetoothManager bluetoothManager;
 
     @Override
@@ -90,6 +92,7 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
                 // Aquí puedes agregar código para realizar alguna acción antes de volver a MainActivity
                 // Por ejemplo, guardar datos, realizar operaciones, etc.
 
+
                 // Luego, puedes volver a MainActivity
                 Intent intent = new Intent(ConfigurationsFilterActivity.this, MainActivity.class);
                 startActivity(intent);
@@ -104,7 +107,6 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("ConfigurationFilterActivity", "Received message: " + receivedMessage);
             // Handle the received message
-
         }
     };
 }
