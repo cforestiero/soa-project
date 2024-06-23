@@ -38,6 +38,10 @@ El proyecto **Smart Pool** consiste en la creación de un sistema automatizado p
 
 ## Aplicación Android
 
+### Prototipo de Navegación
+
+![Prototipo de Navegación](Diagrama_prototipo_navegacion.png)
+
 ### Diagrama de Navegación
 
 ![Diagrama de Navegación](Diagrama_Navegacion.jpg)
