@@ -13,7 +13,7 @@ Departamento de Ingeniería e Investigaciones Tecnológicas
 
 ## Descripción del Proyecto
 
-El proyecto **Smart Pool** consiste en la creación de un sistema automatizado para el monitoreo y control de una piscina. Utilizando sensores de temperatura, nivel de agua y luminosidad, junto con actuadores como bombas y luces LED, el sistema asegura una gestión eficiente y segura de la pileta. La gestión remota se realiza a través de una aplicación móvil Android, mientras que el desarrollo del sistema embebido utilizará la placa Arduino UNO.
+El Proyecto **Smart Pool** consiste en la creación de un sistema automatizado para el monitoreo y control de una piscina. Utilizando sensores de temperatura, nivel de agua y luminosidad, junto con actuadores como bombas y luces LED, el sistema asegura una gestión eficiente y segura de la pileta. La gestión remota se realiza a través de una aplicación móvil Android, mientras que el desarrollo del sistema embebido utilizará la placa Arduino UNO.
 
 ### Características Principales
 
@@ -24,14 +24,14 @@ El proyecto **Smart Pool** consiste en la creación de un sistema automatizado p
 
 ## Sistema Embebido
 
-### Sensores:
+### Sensores
 
-- **Sensor de Temperatura del Agua:** Monitorea la temperatura del agua de la piscina para ajustar los ciclos de filtrado según las condiciones climáticas.(esto pasa porque en verano si la pileta queda 1 dia tapada, tenes mucha agua caliente en la superficie que no se mezcla con la del fondo)
-- **Sensor de Nivel de Agua (Sensor de distancia por ultrasonido (HC-SR04)):** Detecta el nivel de agua en la piscina y proporciona información sobre el estado del sistema de filtrado y bombeo.(Por si ocurre que el nivel por X motivo es bajo y al querer filtrar o desagotar entra aire a la bomba y la quema)
-- **Sensor de Luz Ambiental:** Permite ajustar la intensidad y el color de las luces RGB(LED) de la piscina según las condiciones de iluminación ambiental.
-- **Interruptor Switch (Slide):** Permite establecer el modo de la bomba de agua, alternando entre el modo de filtrado o drenaje.
+- **Sensor de Temperatura del Agua:** Monitorea la temperatura del agua de la piscina para ajustar los ciclos de filtrado según las condiciones climáticas. La cobertura prolongada de la piscina durante un día puede generar una acumulación significativa de agua caliente en la superficie, impidiendo su adecuada mezcla con las capas inferiores.
+- **Sensor de Nivel de Agua (Sensor de distancia por ultrasonido (HC-SR04)):** Detecta el nivel de agua en la piscina y proporciona información sobre el estado del sistema de filtrado y bombeo. Cabe destacar que, en caso de un nivel de agua bajo por cualquier causa, la activación del sistema de filtrado o desagüe podría ocasionar la entrada de aire en la bomba, lo que podría generar daños en la misma.
+- **Sensor de Luz Ambiental:** Permite ajustar la intensidad y el color de las luces LED RGB LED de la piscina según las condiciones de iluminación ambiental.
+- **Interruptor Switch (Slide):** Permite seleccionar el modo de operación de la bomba de agua, alternando entre el modo de filtrado y el modo de drenaje.
 
-### Actuadores:
+### Actuadores
 
 - **Bomba de Filtrado:** Se activa para iniciar y detener los ciclos de filtrado a través de la toma de fondo, basándose en la programación configurada por el usuario a través de la aplicación móvil.(la idea es solo darle corriente con algún relé para que empiece el filtrado)
 - **Luces RGB(LED):** Se pueden encender, apagar y ajustar remotamente a través de la aplicación móvil para personalizar la iluminación de la piscina.(sino usamos solo 3 LEDS a modo de prueba). Un modo noche, así justifica el sensor de luz ambiental.
