@@ -10,10 +10,11 @@
     <string name="filteringProcessMessage">"Filtrando… "</string>
     <string name="dewateringProcessMessage">"Desagotando… "</string>
     <string name="confirmAndContinue">Confirmar y continuar</string>
-    <string name="filteringDuration">Duración del fitrado: 30 min</string>
-    <string name="filterScheduleMessage">Seleccionar cada cuanto tiempo se filtrará (hs)</string>
+    <string name="filteringDuration">Duración del fitrado: 10 seg</string>
+    <string name="filterScheduleMessage">Seleccionar cada cuánto tiempo se filtrará (hs)</string>
     <string name="lastDewaterTimeLabel">"Se desagotó por última vez el: "</string>
     <string name="lastFilterTimeLabel">"Se filtró por última vez el: "</string>
     <string name="waterLevelHigh">Nivel de Agua: Alto</string>
     <string name="waterLevelLow">Nivel de Agua: Bajo</string>
+    <string name="dewateringConfirmMessage">Se comenzará a desagotar su piscina, verifique que esté todo listo.</string>
 </resources>

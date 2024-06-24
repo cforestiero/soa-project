@@ -34,7 +34,7 @@
         android:layout_width="320dp"
         android:layout_height="169dp"
         android:background="#E1D9D9"
-        android:text="Se comenzara a desagotar su piscina, verifique que este todo listo"
+        android:text="@string/dewateringConfirmMessage"
         android:textAlignment="center"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
