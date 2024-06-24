@@ -7,6 +7,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <SoftwareSerial.h>
+#include <Bounce2.h>
 
 /*****************************************************
                         MACROS
@@ -18,7 +19,7 @@
 #define SWITCH_DRAINING_MODE 0
 
 #define TEMPERATURE_THRESHOLD 30
-#define WATER_LEVEL_THRESHOLD 100  // A definir en la APP a desarrollar, depende del alto de la pileta
+#define WATER_LEVEL_THRESHOLD 100
 #define MEDIUM_LUMINOSITY_THRESHOLD 3
 #define LOW_LUMINOSITY_THRESHOLD 1
 
@@ -48,15 +49,12 @@
 ******************************************************/
 
 #define TIMER_CAPTURE_EVENT 60
-#define TIME_TO_START_WATER_PUMP 144000    // 4 horas -> A definir por el usuario en la APP
-#define TIME_TO_STOP_WATER_PUMP 360000     // 1 hora
-#define TIMER_FORCED_LIGHT_MODE 7200000  // 2 horas
+#define TIME_TO_STOP_WATER_PUMP 10000
+#define TIMER_FORCED_LIGHT_MODE 50000
 
 /*****************************************************
                   PINES DE SENSORES
 ******************************************************/
-
-#define PIN_TEMPERATURE_SENSOR 8
 
 #define PIN_LUMINOSITY_SENSOR A0
 
@@ -72,8 +70,9 @@
 #define PIN_RELAY_ACTUATOR 2
 
 #define PIN_RED_LED_ACTUATOR 11
-#define PIN_BLUE_LED_ACTUATOR 10
-#define PIN_GREEN_LED_ACTUATOR 9
+#define PIN_GREEN_LED_ACTUATOR 10
+#define PIN_BLUE_LED_ACTUATOR 9
+
 
 /*****************************************************
                   PINES DE BLUETOOTH
@@ -89,6 +88,13 @@
 const int oneWirePin = 7;
 OneWire oneWireBus(oneWirePin);
 DallasTemperature sensor(&oneWireBus);
+
+/*****************************************************
+        VARIABLES DE BOUNCE2
+******************************************************/
+
+const int switchPin = PIN_WATER_PUMP_MODE_SWITCH_SENSOR; // Pin al que está conectado el interruptor
+Bounce debouncer = Bounce();
 
 /*****************************************************
                        ESTADOS
@@ -139,6 +145,7 @@ unsigned long previousTime;
 unsigned long previousWaterPumpTime;
 unsigned long previousForcedLightTime;
 unsigned long currentTime;
+unsigned long timeToStartWaterPump = 7200;
 bool lightManuallyChangedRecently;  // Espera luego de modificar manualmente las luces LED, para que se mantenga a pesar de los eventos generados por el sensor de luminosidad
 bool isWaterPumpON;
 
@@ -148,29 +155,63 @@ float waterTemperatureCelsius;
 float waterDistanceCM;
 float placeLuminosity;
 
+// RGB
+int redColour;
+int greenColour;
+int blueColour;
+
+// Comando para BT
+char commandBTApp;
+
 
 /*****************************************************
               CREACION DE SOFTWARESERIAL
 ******************************************************/
 
 SoftwareSerial BTSerial(PIN_BLUETOOTH_RX, PIN_BLUETOOTH_TX);
+char NOMBRE[21] = "HC-05";
+char BPS = '4';
+char PASS[5] = "1234";
 
 /*****************************************************
               FUNCIONES DE BLUETOOTH
 ******************************************************/
 
-void sendCurrentInformation() {
+void sendCurrentInformation(char command) {
   String currentMode = (modePressed == SWITCH_FILTERING_MODE) ? "Filtrado" : "Drenaje";
-  BTSerial.println("*****************************************************");
-  BTSerial.println("           INFORMACION ACTUAL DE LA PISCINA          ");
-  BTSerial.println("*****************************************************");
-  BTSerial.println("• Estado: " + String(currentState));
-  BTSerial.println("• Modo de Bomba: " + currentMode);
-  BTSerial.println("• Temperatura del Agua: " + String(waterTemperatureCelsius) + " ºC");
-  BTSerial.println("• Distancia del Agua: " + String(waterDistanceCM) + " cm");
-  BTSerial.println("• Luminosidad del Ambiente: " + String(placeLuminosity) + " lux");
-  BTSerial.println("*****************************************************");
+  String currentStateForBT = getStateName(currentState);
+
+  switch (commandBTApp) {
+    case 'A':
+      Serial.println("Config filtrado");
+      break;
+    case 'I':
+      BTSerial.println("Temperatura del Agua: " + String(waterTemperatureCelsius) + " ºC" + "," + "Distancia del Agua: " + String(waterDistanceCM) + " cm" + "," + "Luminosidad del Ambiente: " + String(placeLuminosity) + " lux" ) ;
+      break;
+    case 'C':
+      Serial.println("Cambiaria Color");
+      break;
+    case 'D':
+      Serial.println("Me pondre a desagotar");
+      break;
+    case 'B':
+      //un evento bt para mandar el estado de bomba
+      BTSerial.println("B," + currentMode);
+      break;
+    case 'L':
+      //un evento bt para mandar algun estado para  la luz
+      BTSerial.println("L," + currentStateForBT);
+      break;
+    case 'W':
+      Serial.println("Cambio de modo dia/noche");
+      break;
+
+    default: Serial.println("Unknown command");
+      break;
+  }
+
 }
+
 
 /*****************************************************
                    FUNCIONES DE LOGS
@@ -194,6 +235,44 @@ void generateLog(const char *initialState, const char *currentEvent, const char 
   Serial.println("Estado Final: " + String(finalState));
   Serial.println("................................................");
 #endif
+  generateLogBT(finalState, currentEvent);
+}
+
+void generateLogBT( const char *finalState, const char *currentEvent) {
+  BTSerial.println("Estado Final: " + String(finalState) + "," + "Evento: " + String(currentEvent) );
+}
+
+/*****************************************************
+                   FUNCIONES DE STATES
+******************************************************/
+
+String getStateName(possibleStates state) {
+  switch (state) {
+    case IDLE:
+      return "IDLE";
+    case DRAINING_MODE:
+      return "DRAINING_MODE";
+    case DRAINING_DAY_MODE:
+      return "DRAINING_DAY_MODE";
+    case DRAINING_PROCESS_DAY:
+      return "DRAINING_PROCESS_DAY";
+    case DRAINING_NIGHT_MODE:
+      return "DRAINING_NIGHT_MODE";
+    case DRAINING_PROCESS_NIGHT:
+      return "DRAINING_PROCESS_NIGHT";
+    case FILTERING_MODE:
+      return "FILTERING_MODE";
+    case FILTERING_DAY_MODE:
+      return "FILTERING_DAY_MODE";
+    case FILTERING_PROCESS_DAY:
+      return "FILTERING_PROCESS_DAY";
+    case FILTERING_NIGHT_MODE:
+      return "FILTERING_NIGHT_MODE";
+    case FILTERING_PROCESS_NIGHT:
+      return "FILTERING_PROCESS_NIGHT";
+    default:
+      return "UNKNOWN_STATE";
+  }
 }
 
 /*****************************************************
@@ -211,7 +290,7 @@ void generateLog(const char *initialState, const char *currentEvent, const char 
 float readTemperature() {
   float temperatureCelsius;
   sensor.requestTemperatures();
-  
+
   return temperatureCelsius = sensor.getTempCByIndex(0);
 }
 
@@ -230,6 +309,7 @@ float readLuminosity() {
   int lightResistance = LUMINOSITY_RESISTANCE_KOHM;        // Light resistance
   int resistanceCalibration = LUMINOSITY_RESISTANCE_KOHM;  // Calibration resistance
   float luminosity = ((ANALOG_VOLT_MAX_REFERENCE - lightVoltage) * darknessResistance * LUMINOSITY_RESISTANCE_KOHM) / (lightResistance * resistanceCalibration * lightVoltage);
+
   return luminosity;
 }
 
@@ -266,8 +346,8 @@ float measureDistance() {
 
 void turnOFFLED() {
   analogWrite(PIN_RED_LED_ACTUATOR, COLOUR_MIN);
-  analogWrite(PIN_BLUE_LED_ACTUATOR, COLOUR_MIN);
   analogWrite(PIN_GREEN_LED_ACTUATOR, COLOUR_MIN);
+  analogWrite(PIN_BLUE_LED_ACTUATOR, COLOUR_MIN);
 }
 
 /*
@@ -280,8 +360,8 @@ void turnOFFLED() {
 
 void turnONLED(float intensity) {
   analogWrite(PIN_RED_LED_ACTUATOR, COLOUR_MAX * intensity);
-  analogWrite(PIN_BLUE_LED_ACTUATOR, COLOUR_MAX * intensity);
   analogWrite(PIN_GREEN_LED_ACTUATOR, COLOUR_MAX * intensity);
+  analogWrite(PIN_BLUE_LED_ACTUATOR, COLOUR_MAX * intensity);
 }
 
 /*
@@ -334,6 +414,7 @@ void turnONWaterPump() {
 */
 
 void verifyModeSwitch() {
+  debouncer.update();
   modePressed = digitalRead(PIN_WATER_PUMP_MODE_SWITCH_SENSOR);
 
   if (modePressed == SWITCH_FILTERING_MODE)
@@ -417,9 +498,9 @@ void verifyLight() {
 */
 
 void verifyTimersWaterPump() {
-  if ((currentTime - previousWaterPumpTime) > TIME_TO_START_WATER_PUMP && !isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
+  if ((currentTime - previousWaterPumpTime) > timeToStartWaterPump && !isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
     eventType = TIMER_START_WATER_PUMP;
-  else if ((currentTime - previousWaterPumpTime) > TIME_TO_STOP_WATER_PUMP && isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
+  else if ((currentTime - previousWaterPumpTime) > timeToStartWaterPump && isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
     eventType = TIMER_STOP_WATER_PUMP;
   else
     eventType = EVENT_CONTINUE;
@@ -430,26 +511,65 @@ void verifyTimersWaterPump() {
    Descripción: Esta función verifica si se recibe una señal BlueTooth en la cual se desee ejecutar un comando
 
    Eventos Posibles:
-   - BLUETOOTH_SIGNAL_READY: En caso de que se reciba la señal READY_FOR_DRAINING
+   - BLUETOOTH_SIGNAL_READY: En caso de que se reciba la señal READY_FOR_DRAINING(D)
    - BLUETOOTH_SIGNAL_LIGHT_COLOUR: En caso de que se reciba la señal CHANGE_LIGHT_COLOUR
    - BLUETOOTH_SIGNAL_LIGHT_MODE: En caso de que se reciba la señal CHANGE_LIGHT_MODE
    - EVENT_CONTINUE: En caso de que no se reciba ninguna señal (no se envíe ningún comando)
 */
 
 void verifyBTCommand() {
-  if(BTSerial.available()) {
-    String command = BTSerial.readStringUntil('\n');
-    if(command.equalsIgnoreCase("READY_FOR_DRAINING"))
-      eventType = BLUETOOTH_SIGNAL_READY;
-    else if(command.equalsIgnoreCase("CHANGE_LIGHT_COLOUR"))
-      eventType = BLUETOOTH_SIGNAL_LIGHT_COLOUR;
-    else if(command.equalsIgnoreCase("CHANGE_LIGHT_MODE"))
-      eventType = BLUETOOTH_SIGNAL_LIGHT_MODE;
-    else if(command.equalsIgnoreCase("SEND_INFORMATION"))
-      eventType = BLUETOOTH_SIGNAL_SEND_INFORMATION;
-    else {
-      BTSerial.println("Error: Comando desconocido, por favor vuelva a intentarlo.");
-      eventType = EVENT_CONTINUE;
+
+  String bufferBT;
+
+  if (BTSerial.available()) {
+    char receivedChar = BTSerial.read();
+    commandBTApp = receivedChar;
+    Serial.print("Received: ");
+    Serial.println(receivedChar);
+    switch (receivedChar) {
+      case 'A':
+        Serial.println("Command A received");
+        bufferBT = BTSerial.read();
+        Serial.println(bufferBT);
+        timeToStartWaterPump = BTSerial.parseInt();
+        Serial.println("Tiempo recibido");
+        Serial.println(timeToStartWaterPump);
+        break;
+      case 'D':
+        Serial.println("Command D para drenar");
+        eventType = BLUETOOTH_SIGNAL_READY;
+        break;
+      case 'I':
+        eventType = BLUETOOTH_SIGNAL_SEND_INFORMATION;
+        break;
+      case 'C':
+        eventType = BLUETOOTH_SIGNAL_LIGHT_COLOUR;
+        Serial.println("Cambiaria Color por la app");
+        bufferBT = BTSerial.read();
+
+        redColour = BTSerial.parseInt();
+        greenColour = BTSerial.parseInt();
+        blueColour = BTSerial.parseInt();
+
+        sendCurrentInformation(commandBTApp);
+        break;
+      case 'B':
+        //un evento bt para mandar el estado de bomba
+        sendCurrentInformation(commandBTApp);
+        break;
+      case 'L':
+        //un evento bt para mandar el estado para las luces
+        sendCurrentInformation(commandBTApp);
+        break;
+      case 'W':
+        //un evento bt para modificar el estado de la luz
+        eventType = BLUETOOTH_SIGNAL_LIGHT_MODE;
+        Serial.println("Cambiaria De modo porque apago o prendo");
+        break;
+
+      default:
+        Serial.println("Unknown command");
+        break;
     }
   }
 }
@@ -498,17 +618,40 @@ void setUpEmbeddedSystem() {
   pinMode(PIN_TEMPERATURE_SENSOR, INPUT);
   pinMode(PIN_LUMINOSITY_SENSOR, INPUT);
   pinMode(PIN_PROXIMITY_SENSOR_ECHO, INPUT);
-  pinMode(PIN_WATER_PUMP_MODE_SWITCH_SENSOR, INPUT);
+
+  // Inicialización de pines en modo INPUT_PULLUP
+  pinMode(switchPin, INPUT_PULLUP);
 
   // Inicialización de pines en modo OUTPUT
   pinMode(PIN_PROXIMITY_SENSOR_TRIG, OUTPUT);
   pinMode(PIN_RELAY_ACTUATOR, OUTPUT);
   pinMode(PIN_RED_LED_ACTUATOR, OUTPUT);
-  pinMode(PIN_BLUE_LED_ACTUATOR, OUTPUT);
   pinMode(PIN_GREEN_LED_ACTUATOR, OUTPUT);
+  pinMode(PIN_BLUE_LED_ACTUATOR, OUTPUT);
+
+  // Inicialización Bounce2 para interruptor
+  debouncer.attach(switchPin); // Asocia el pin al debouncer
+  debouncer.interval(50); // Establece el intervalo de debounce en milisegundos
+
+  // Inicializacion BT
+  BTSerial.print("AT+NAME");
+  BTSerial.print(NOMBRE);
+  delay(1000);
+
+  BTSerial.print("AT+BAUD");
+  BTSerial.print(BPS);
+  delay(1000);
+
+  BTSerial.print("AT+PIN");
+  BTSerial.print(PASS);
+  delay(1000);
 
   // Inicialización del Estado de la FSM
   currentState = IDLE;
+
+  //verificar estado switch
+  verifyModeSwitch();
+  Serial.println("Inicializando");
 
   // Inicialización de Temporizador
   previousTime = millis();
@@ -532,7 +675,7 @@ void fsm()
           currentState = FILTERING_MODE;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = IDLE;
           break;
         case EVENT_CONTINUE:
@@ -563,7 +706,7 @@ void fsm()
           currentState = FILTERING_MODE;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = DRAINING_MODE;
           break;
         case EVENT_CONTINUE:
@@ -602,7 +745,7 @@ void fsm()
           currentState = DRAINING_PROCESS_DAY;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = DRAINING_DAY_MODE;
           break;
         case EVENT_CONTINUE:
@@ -637,7 +780,7 @@ void fsm()
           currentState = IDLE;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = DRAINING_PROCESS_DAY;
           break;
         case EVENT_CONTINUE:
@@ -657,7 +800,6 @@ void fsm()
           break;
         case MEDIUM_LIGHT:
           turnONLED(MEDIUM_LIGHT_INTENSITY);
-          generateLog("DRAINING_NIGHT_MODE", "MEDIUM_LIGHT", "DRAINING_NIGHT_MODE");
           currentState = DRAINING_NIGHT_MODE;
           break;
         case HIGH_LIGHT:
@@ -676,14 +818,14 @@ void fsm()
           currentState = DRAINING_PROCESS_NIGHT;
           break;
         case BLUETOOTH_SIGNAL_LIGHT_COLOUR:
-          modifyLEDColour(RED_COLOUR_DEFAULT, GREEN_COLOUR_DEFAULT, BLUE_COLOUR_DEFAULT);
+          modifyLEDColour(redColour, greenColour, blueColour);
           lightManuallyChangedRecently = true;
           previousForcedLightTime = currentTime;
           generateLog("DRAINING_NIGHT_MODE", "BLUETOOTH_SIGNAL_LIGHT_COLOUR", "DRAINING_NIGHT_MODE");
           currentState = DRAINING_NIGHT_MODE;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = DRAINING_NIGHT_MODE;
           break;
         case EVENT_CONTINUE:
@@ -703,7 +845,6 @@ void fsm()
           break;
         case MEDIUM_LIGHT:
           turnONLED(MEDIUM_LIGHT_INTENSITY);
-          generateLog("DRAINING_PROCESS_NIGHT", "MEDIUM_LIGHT", "DRAINING_PROCESS_NIGHT");
           currentState = DRAINING_PROCESS_NIGHT;
           break;
         case HIGH_LIGHT:
@@ -714,18 +855,18 @@ void fsm()
         case LOW_WATER_LEVEL:
           turnOFFWaterPump();
           previousWaterPumpTime = currentTime;
-          generateLog("DRAINING_PROCESS_NIGHT", "TIMER_STOP_WATER_PUMP", "IDLE");
+          generateLog("DRAINING_PROCESS_NIGHT", "LOW_WATER_LEVEL", "IDLE");
           currentState = IDLE;
           break;
         case BLUETOOTH_SIGNAL_LIGHT_COLOUR:
-          modifyLEDColour(RED_COLOUR_DEFAULT, GREEN_COLOUR_DEFAULT, BLUE_COLOUR_DEFAULT);
+          modifyLEDColour(redColour, greenColour, blueColour);
           lightManuallyChangedRecently = true;
           previousForcedLightTime = currentTime;
           generateLog("DRAINING_PROCESS_NIGHT", "BLUETOOTH_SIGNAL_LIGHT_COLOUR", "DRAINING_PROCESS_NIGHT");
           currentState = DRAINING_PROCESS_NIGHT;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = DRAINING_PROCESS_NIGHT;
           break;
         case EVENT_CONTINUE:
@@ -756,7 +897,7 @@ void fsm()
           currentState = DRAINING_MODE;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = FILTERING_MODE;
           break;
         case EVENT_CONTINUE:
@@ -801,7 +942,7 @@ void fsm()
           currentState = DRAINING_DAY_MODE;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = FILTERING_DAY_MODE;
           break;
         case EVENT_CONTINUE:
@@ -836,7 +977,7 @@ void fsm()
           currentState = IDLE;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = FILTERING_PROCESS_DAY;
           break;
         case EVENT_CONTINUE:
@@ -868,7 +1009,6 @@ void fsm()
           break;
         case MEDIUM_LIGHT:
           turnONLED(MEDIUM_LIGHT_INTENSITY);
-          generateLog("FILTERING_NIGHT_MODE", "MEDIUM_LIGHT", "FILTERING_NIGHT_MODE");
           currentState = FILTERING_NIGHT_MODE;
           break;
         case HIGH_LIGHT:
@@ -881,14 +1021,14 @@ void fsm()
           currentState = DRAINING_NIGHT_MODE;
           break;
         case BLUETOOTH_SIGNAL_LIGHT_COLOUR:
-          modifyLEDColour(RED_COLOUR_DEFAULT, GREEN_COLOUR_DEFAULT, BLUE_COLOUR_DEFAULT);
+          modifyLEDColour(redColour, greenColour, blueColour);
           lightManuallyChangedRecently = true;
           previousForcedLightTime = currentTime;
           generateLog("FILTERING_NIGHT_MODE", "BLUETOOTH_SIGNAL_LIGHT_COLOUR", "FILTERING_NIGHT_MODE");
           currentState = FILTERING_NIGHT_MODE;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = FILTERING_NIGHT_MODE;
           break;
         case EVENT_CONTINUE:
@@ -908,7 +1048,6 @@ void fsm()
           break;
         case MEDIUM_LIGHT:
           turnONLED(MEDIUM_LIGHT_INTENSITY);
-          generateLog("FILTERING_PROCESS_NIGHT", "MEDIUM_LIGHT", "FILTERING_PROCESS_NIGHT");
           currentState = FILTERING_PROCESS_NIGHT;
           break;
         case HIGH_LIGHT:
@@ -923,14 +1062,14 @@ void fsm()
           currentState = IDLE;
           break;
         case BLUETOOTH_SIGNAL_LIGHT_COLOUR:
-          modifyLEDColour(RED_COLOUR_DEFAULT, GREEN_COLOUR_DEFAULT, BLUE_COLOUR_DEFAULT);
+          modifyLEDColour(redColour, greenColour, blueColour);
           lightManuallyChangedRecently = true;
           previousForcedLightTime = currentTime;
           generateLog("FILTERING_PROCESS_NIGHT", "BLUETOOTH_SIGNAL_LIGHT_COLOUR", "FILTERING_PROCESS_NIGHT");
           currentState = FILTERING_PROCESS_NIGHT;
           break;
         case BLUETOOTH_SIGNAL_SEND_INFORMATION:
-          sendCurrentInformation();
+          sendCurrentInformation(commandBTApp);
           currentState = FILTERING_PROCESS_NIGHT;
           break;
         case EVENT_CONTINUE:
