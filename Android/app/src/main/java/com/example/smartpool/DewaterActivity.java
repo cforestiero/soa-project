@@ -3,22 +3,14 @@ package com.example.smartpool;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import java.lang.ref.WeakReference;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
 
 public class DewaterActivity extends AppCompatActivity {
 
@@ -51,14 +43,18 @@ public class DewaterActivity extends AppCompatActivity {
                 // Se envia command para que la bomba ande
                 bluetoothManager.sendCommand(DEWATER_SIGNAL_READY);
                 // Guarda la hora de drenado
-                SharedPreferences.Editor editor = getSharedPreferences(Common.PREFS_NAME, MODE_PRIVATE).edit();
-                editor.putString(Common.DEWATER_TIME_KEY, Common.getCurrentDateTime());
-                editor.apply();
+                saveDewaterDate();
 
                 Intent intent = new Intent(DewaterActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
+    }
+
+    private void saveDewaterDate() {
+        SharedPreferences.Editor editor = getSharedPreferences(Constants.STATS_PREFS, MODE_PRIVATE).edit();
+        editor.putString(Constants.DEWATER_TIME_KEY, Common.getCurrentDateTime());
+        editor.apply();
     }
 }

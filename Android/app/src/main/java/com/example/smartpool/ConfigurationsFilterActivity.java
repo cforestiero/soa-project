@@ -15,12 +15,6 @@ import java.lang.ref.WeakReference;
 
 public class ConfigurationsFilterActivity extends AppCompatActivity {
 
-    private static final String FILTER_SCHEDULE = "A";
-    private static final int MIN_FILTER_HOURS = 1;
-    private static final int MAX_FILTER_HOURS = 12;
-    private static final int DEFAULT_FILTER_HOURS = 4;
-
-
     private BluetoothManager bluetoothManager;
 
     @Override
@@ -46,9 +40,9 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
         Button decrementButton = findViewById(R.id.decrementButton);
 
         // Set valor maximo y minimo para seleccionar las horas en el numberPicker
-        numberPicker.setMinValue(MIN_FILTER_HOURS);
-        numberPicker.setMaxValue(MAX_FILTER_HOURS);
-        numberPicker.setValue(DEFAULT_FILTER_HOURS); // Set valor inicial
+        numberPicker.setMinValue(Constants.MIN_FILTER_HOURS);
+        numberPicker.setMaxValue(Constants.MAX_FILTER_HOURS);
+        numberPicker.setValue(Constants.DEFAULT_FILTER_HOURS); // Set valor inicial
 
         // Establece un listener para el NumberPicker para actualizar el valor del numberPicker
         numberPicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
@@ -79,7 +73,7 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Envio del dato que selecciono el usuario al Arduino
                 int filterHours = numberPicker.getValue();
-                String command = FILTER_SCHEDULE + " " + Common.hoursToMilliseconds(filterHours) + "\n";
+                String command = String.format("%s %d\n",Constants.FILTER_SCHEDULE, Common.hoursToMilliseconds(filterHours));
                 bluetoothManager.sendCommand(command);
 
                 Intent intent = new Intent(ConfigurationsFilterActivity.this, MainActivity.class);

@@ -178,7 +178,7 @@ char PASS[5] = "1234";
 ******************************************************/
 
 void sendCurrentInformation(char command) {
-  String currentMode = (modePressed == SWITCH_FILTERING_MODE) ? "Filtrado" : "Drenaje";
+  String currentMode = (modePressed == SWITCH_FILTERING_MODE) ? "F" : "D";
   String currentStateForBT = getStateName(currentState);
 
   switch (commandBTApp) {
@@ -186,7 +186,7 @@ void sendCurrentInformation(char command) {
       Serial.println("Config filtrado");
       break;
     case 'I':
-      BTSerial.println("Temperatura del Agua: " + String(waterTemperatureCelsius) + " ºC" + "," + "Distancia del Agua: " + String(waterDistanceCM) + " cm" + "," + "Luminosidad del Ambiente: " + String(placeLuminosity) + " lux" ) ;
+      BTSerial.println("Temperatura del Agua: " + String(waterTemperatureCelsius) + " ºC" + "," + "Distancia del Agua: " + String(waterDistanceCM) + " cm") ;
       break;
     case 'C':
       Serial.println("Cambiaria Color");
@@ -238,8 +238,8 @@ void generateLog(const char *initialState, const char *currentEvent, const char 
   generateLogBT(finalState, currentEvent);
 }
 
-void generateLogBT( const char *finalState, const char *currentEvent) {
-  BTSerial.println("Estado Final: " + String(finalState) + "," + "Evento: " + String(currentEvent) );
+void generateLogBT(const char *finalState, const char *currentEvent) {
+    BTSerial.println("E," + String(finalState) + "," + String(currentEvent));
 }
 
 /*****************************************************
@@ -247,32 +247,32 @@ void generateLogBT( const char *finalState, const char *currentEvent) {
 ******************************************************/
 
 String getStateName(possibleStates state) {
-  switch (state) {
-    case IDLE:
-      return "IDLE";
-    case DRAINING_MODE:
-      return "DRAINING_MODE";
-    case DRAINING_DAY_MODE:
-      return "DRAINING_DAY_MODE";
-    case DRAINING_PROCESS_DAY:
-      return "DRAINING_PROCESS_DAY";
-    case DRAINING_NIGHT_MODE:
-      return "DRAINING_NIGHT_MODE";
-    case DRAINING_PROCESS_NIGHT:
-      return "DRAINING_PROCESS_NIGHT";
-    case FILTERING_MODE:
-      return "FILTERING_MODE";
-    case FILTERING_DAY_MODE:
-      return "FILTERING_DAY_MODE";
-    case FILTERING_PROCESS_DAY:
-      return "FILTERING_PROCESS_DAY";
-    case FILTERING_NIGHT_MODE:
-      return "FILTERING_NIGHT_MODE";
-    case FILTERING_PROCESS_NIGHT:
-      return "FILTERING_PROCESS_NIGHT";
-    default:
-      return "UNKNOWN_STATE";
-  }
+    switch (state) {
+        case IDLE:
+            return "IDL";
+        case DRAINING_MODE:
+            return "DM";
+        case DRAINING_DAY_MODE:
+            return "DDM";
+        case DRAINING_PROCESS_DAY:
+            return "DPD";
+        case DRAINING_NIGHT_MODE:
+            return "DNM";
+        case DRAINING_PROCESS_NIGHT:
+            return "DPN";
+        case FILTERING_MODE:
+            return "FM";
+        case FILTERING_DAY_MODE:
+            return "FDM";
+        case FILTERING_PROCESS_DAY:
+            return "FPD";
+        case FILTERING_NIGHT_MODE:
+            return "FNM";
+        case FILTERING_PROCESS_NIGHT:
+            return "FPN";
+        default:
+            return "UK";
+    }
 }
 
 /*****************************************************

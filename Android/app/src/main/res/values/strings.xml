@@ -17,4 +17,5 @@
     <string name="waterLevelHigh">Nivel de Agua: Alto</string>
     <string name="waterLevelLow">Nivel de Agua: Bajo</string>
     <string name="dewateringConfirmMessage">Se comenzará a desagotar su piscina, verifique que esté todo listo.</string>
+    <string name="selectedColourSavedMessage">Color seleccionado guardado</string>
 </resources>
