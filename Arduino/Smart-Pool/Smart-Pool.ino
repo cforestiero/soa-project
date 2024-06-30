@@ -43,6 +43,11 @@
 #define COLOUR_MIN 0
 
 #define INDEX_INITIALIZATION 0
+#define INDEX_GET_TEMP 0
+
+#define DEBOUNCE_INTERVAL 50
+
+#define BITS_PER_SECOND 9600
 
 /*****************************************************
                         TIMERS
@@ -50,6 +55,7 @@
 
 #define TIMER_CAPTURE_EVENT 60
 #define TIME_TO_STOP_WATER_PUMP 10000
+#define TIME_TO_STAR_WATER_PUMP 10000
 #define TIMER_FORCED_LIGHT_MODE 50000
 
 /*****************************************************
@@ -60,6 +66,7 @@
 
 #define PIN_PROXIMITY_SENSOR_TRIG 6
 #define PIN_PROXIMITY_SENSOR_ECHO 5
+#define PIN_TEMPERATURE_SENSOR 7
 
 #define PIN_WATER_PUMP_MODE_SWITCH_SENSOR 13
 
@@ -73,34 +80,34 @@
 #define PIN_GREEN_LED_ACTUATOR 10
 #define PIN_BLUE_LED_ACTUATOR 9
 
-
 /*****************************************************
                   PINES DE BLUETOOTH
 ******************************************************/
 
 #define PIN_BLUETOOTH_RX 3
 #define PIN_BLUETOOTH_TX 4
+#define PIN_KEY 8
 
 /*****************************************************
         VARIABLES DE ONEWIRE/DALLASTEMPERATURE
 ******************************************************/
 
-const int oneWirePin = 7;
-OneWire oneWireBus(oneWirePin);
+OneWire oneWireBus(PIN_TEMPERATURE_SENSOR);
 DallasTemperature sensor(&oneWireBus);
 
 /*****************************************************
         VARIABLES DE BOUNCE2
 ******************************************************/
 
-const int switchPin = PIN_WATER_PUMP_MODE_SWITCH_SENSOR; // Pin al que está conectado el interruptor
+const int switchPin = PIN_WATER_PUMP_MODE_SWITCH_SENSOR;
 Bounce debouncer = Bounce();
 
 /*****************************************************
                        ESTADOS
 ******************************************************/
 
-enum possibleStates {
+enum possibleStates 
+{
   IDLE,
   DRAINING_MODE,
   DRAINING_DAY_MODE,
@@ -118,7 +125,8 @@ enum possibleStates {
                        EVENTOS
 ******************************************************/
 
-enum possibleEvents {
+enum possibleEvents 
+{
   SWITCH_DRAINING,
   SWITCH_FILTERING,
   HIGH_LIGHT,
@@ -145,9 +153,12 @@ unsigned long previousTime;
 unsigned long previousWaterPumpTime;
 unsigned long previousForcedLightTime;
 unsigned long currentTime;
-unsigned long timeToStartWaterPump = 7200;
+unsigned long timeToStartWaterPump = TIME_TO_STAR_WATER_PUMP;
 bool lightManuallyChangedRecently;  // Espera luego de modificar manualmente las luces LED, para que se mantenga a pesar de los eventos generados por el sensor de luminosidad
 bool isWaterPumpON;
+
+// Indice para vector de funciones
+int index = INDEX_INITIALIZATION;
 
 // Información de Sensores
 bool modePressed;
@@ -160,7 +171,7 @@ int redColour;
 int greenColour;
 int blueColour;
 
-// Comando para BT
+// Comando para BTString
 char commandBTApp;
 
 
@@ -169,24 +180,29 @@ char commandBTApp;
 ******************************************************/
 
 SoftwareSerial BTSerial(PIN_BLUETOOTH_RX, PIN_BLUETOOTH_TX);
-char NOMBRE[21] = "HC-05";
-char BPS = '4';
-char PASS[5] = "1234";
+String nombreBT = "Smart-Pool";
+int bpsBT = BITS_PER_SECOND;
+String passBT = "SmartPool";
+String comandoName = "AT+NAME=" + nombreBT;
+String comandoPass = "AT+PSWD=" + passBT;
 
 /*****************************************************
               FUNCIONES DE BLUETOOTH
 ******************************************************/
 
-void sendCurrentInformation(char command) {
+void sendCurrentInformation(char command) 
+{
   String currentMode = (modePressed == SWITCH_FILTERING_MODE) ? "F" : "D";
   String currentStateForBT = getStateName(currentState);
 
-  switch (commandBTApp) {
+  switch (commandBTApp) 
+  {
     case 'A':
       Serial.println("Config filtrado");
       break;
-    case 'I':
-      BTSerial.println("Temperatura del Agua: " + String(waterTemperatureCelsius) + " ºC" + "," + "Distancia del Agua: " + String(waterDistanceCM) + " cm") ;
+    case 'B':
+      // Evento bt para mandar el estado de la bomba
+      BTSerial.println("B," + currentMode);
       break;
     case 'C':
       Serial.println("Cambiaria Color");
@@ -194,18 +210,16 @@ void sendCurrentInformation(char command) {
     case 'D':
       Serial.println("Me pondre a desagotar");
       break;
-    case 'B':
-      //un evento bt para mandar el estado de bomba
-      BTSerial.println("B," + currentMode);
+    case 'I':
+      BTSerial.println("I, Temperatura del Agua: " + String(waterTemperatureCelsius) + " ºC" + "," + String(waterDistanceCM)) ;
       break;
     case 'L':
-      //un evento bt para mandar algun estado para  la luz
+      // Evento bt para mandar el estado de la luz
       BTSerial.println("L," + currentStateForBT);
       break;
     case 'W':
       Serial.println("Cambio de modo dia/noche");
       break;
-
     default: Serial.println("Unknown command");
       break;
   }
@@ -227,7 +241,8 @@ void sendCurrentInformation(char command) {
    - finalState: Estado al que transiciona el embebido
 */
 
-void generateLog(const char *initialState, const char *currentEvent, const char *finalState) {
+void generateLog(const char *initialState, const char *currentEvent, const char *finalState) 
+{
 #ifdef LOGS_ON
   Serial.println("................................................");
   Serial.println("Estado Inicial: " + String(initialState));
@@ -238,7 +253,8 @@ void generateLog(const char *initialState, const char *currentEvent, const char 
   generateLogBT(finalState, currentEvent);
 }
 
-void generateLogBT(const char *finalState, const char *currentEvent) {
+void generateLogBT(const char *finalState, const char *currentEvent) 
+{
     BTSerial.println("E," + String(finalState) + "," + String(currentEvent));
 }
 
@@ -246,8 +262,10 @@ void generateLogBT(const char *finalState, const char *currentEvent) {
                    FUNCIONES DE STATES
 ******************************************************/
 
-String getStateName(possibleStates state) {
-    switch (state) {
+String getStateName(possibleStates state) 
+{
+    switch (state) 
+    {
         case IDLE:
             return "IDL";
         case DRAINING_MODE:
@@ -287,11 +305,12 @@ String getStateName(possibleStates state) {
    - temperatureCelsius: La temperatura leída por el sensor, expresada en grados Celsius
 */
 
-float readTemperature() {
+float readTemperature() 
+{
   float temperatureCelsius;
   sensor.requestTemperatures();
 
-  return temperatureCelsius = sensor.getTempCByIndex(0);
+  return temperatureCelsius = sensor.getTempCByIndex(INDEX_GET_TEMP);
 }
 
 /*
@@ -302,7 +321,8 @@ float readTemperature() {
    - luminosity: La luminosidad leída por el sensor
 */
 
-float readLuminosity() {
+float readLuminosity() 
+{
   int lightValue = analogRead(PIN_LUMINOSITY_SENSOR);
   int lightVoltage = lightValue;                           // Voltage
   int darknessResistance = LUMINOSITY_RESISTANCE_KOHM;     // Darkness resistance
@@ -321,7 +341,8 @@ float readLuminosity() {
    - distanceCM: La distancia medida a partir del sensor, expresada en centímetros
 */
 
-float measureDistance() {
+float measureDistance() 
+{
 
   // Generar un pulso corto en el pin de trigger
   digitalWrite(PIN_PROXIMITY_SENSOR_TRIG, HIGH);
@@ -329,7 +350,7 @@ float measureDistance() {
   digitalWrite(PIN_PROXIMITY_SENSOR_TRIG, LOW);
 
   // Medir el tiempo que tarda en llegar el eco
-  long duration = pulseIn(PIN_PROXIMITY_SENSOR_ECHO, HIGH);
+  float duration = pulseIn(PIN_PROXIMITY_SENSOR_ECHO, HIGH);
   float distanceCM = duration / INCHES_TO_CM;
 
   return distanceCM;
@@ -344,7 +365,8 @@ float measureDistance() {
    Descripción: Esta función apaga las luces LED
 */
 
-void turnOFFLED() {
+void turnOFFLED() 
+{
   analogWrite(PIN_RED_LED_ACTUATOR, COLOUR_MIN);
   analogWrite(PIN_GREEN_LED_ACTUATOR, COLOUR_MIN);
   analogWrite(PIN_BLUE_LED_ACTUATOR, COLOUR_MIN);
@@ -358,7 +380,8 @@ void turnOFFLED() {
    - intensity: Intensidad a la que se desea prender las luces LED (en el embebido actualmente se encuentra intensidad media o alta)
 */
 
-void turnONLED(float intensity) {
+void turnONLED(float intensity) 
+{
   analogWrite(PIN_RED_LED_ACTUATOR, COLOUR_MAX * intensity);
   analogWrite(PIN_GREEN_LED_ACTUATOR, COLOUR_MAX * intensity);
   analogWrite(PIN_BLUE_LED_ACTUATOR, COLOUR_MAX * intensity);
@@ -374,7 +397,8 @@ void turnONLED(float intensity) {
    - blue: Componente azul del color
 */
 
-void modifyLEDColour(int red, int green, int blue) {
+void modifyLEDColour(int red, int green, int blue)
+ {
   analogWrite(PIN_RED_LED_ACTUATOR, red);
   analogWrite(PIN_GREEN_LED_ACTUATOR, green);
   analogWrite(PIN_BLUE_LED_ACTUATOR, blue);
@@ -385,7 +409,8 @@ void modifyLEDColour(int red, int green, int blue) {
    Descripción: Esta función apaga el relé al que se conecta la bomba de agua
 */
 
-void turnOFFWaterPump() {
+void turnOFFWaterPump() 
+{
   digitalWrite(PIN_RELAY_ACTUATOR, LOW);
   isWaterPumpON = false;
 }
@@ -395,7 +420,8 @@ void turnOFFWaterPump() {
    Descripción: Esta función prende el relé al que se conecta la bomba de agua
 */
 
-void turnONWaterPump() {
+void turnONWaterPump() 
+{
   digitalWrite(PIN_RELAY_ACTUATOR, HIGH);
   isWaterPumpON = true;
 }
@@ -413,7 +439,8 @@ void turnONWaterPump() {
    - SWITCH_DRAINING_MODE: En caso de encontrarse en la segunda posición
 */
 
-void verifyModeSwitch() {
+void verifyModeSwitch() 
+{
   debouncer.update();
   modePressed = digitalRead(PIN_WATER_PUMP_MODE_SWITCH_SENSOR);
 
@@ -434,7 +461,8 @@ void verifyModeSwitch() {
    - EVENT_CONTINUE: En caso de que no se supere la temperatura establecida como umbral
 */
 
-void verifyTemperature() {
+void verifyTemperature() 
+{
   waterTemperatureCelsius = readTemperature();
 
   if (waterTemperatureCelsius > TEMPERATURE_THRESHOLD)
@@ -452,7 +480,8 @@ void verifyTemperature() {
    - EVENT_CONTINUE: En caso de que el nivel del agua sea mayor a la establecida como umbral
 */
 
-void verifyWaterLevel() {
+void verifyWaterLevel() 
+{
   waterDistanceCM = measureDistance();
 
   if (waterDistanceCM >= WATER_LEVEL_THRESHOLD)
@@ -471,17 +500,21 @@ void verifyWaterLevel() {
    - LOW_LIGHT: En caso de que la luminosidad sea menor a la establecida como umbral (mayor a los valores del sensor de luminosidad establecidos como umbral)
 */
 
-void verifyLight() {
+void verifyLight() 
+{
   placeLuminosity = readLuminosity();
   if (lightManuallyChangedRecently && (currentTime - previousForcedLightTime) <= TIMER_FORCED_LIGHT_MODE)
     eventType = EVENT_CONTINUE;
-  else if (placeLuminosity <= LOW_LUMINOSITY_THRESHOLD) {
+  else if (placeLuminosity <= LOW_LUMINOSITY_THRESHOLD) 
+  {
     lightManuallyChangedRecently = false;
     eventType = LOW_LIGHT;
-  } else if (placeLuminosity <= MEDIUM_LUMINOSITY_THRESHOLD) {
+  } else if (placeLuminosity <= MEDIUM_LUMINOSITY_THRESHOLD) 
+  {
     lightManuallyChangedRecently = false;
     eventType = MEDIUM_LIGHT;
-  } else {
+  } else 
+  {
     lightManuallyChangedRecently = false;
     eventType = HIGH_LIGHT;
   }
@@ -497,7 +530,8 @@ void verifyLight() {
    - EVENT_CONTINUE: En caso de que no se cumpla ninguna de las condiciones arriba especificadas
 */
 
-void verifyTimersWaterPump() {
+void verifyTimersWaterPump() 
+{
   if ((currentTime - previousWaterPumpTime) > timeToStartWaterPump && !isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
     eventType = TIMER_START_WATER_PUMP;
   else if ((currentTime - previousWaterPumpTime) > timeToStartWaterPump && isWaterPumpON && modePressed == SWITCH_FILTERING_MODE)
@@ -517,16 +551,19 @@ void verifyTimersWaterPump() {
    - EVENT_CONTINUE: En caso de que no se reciba ninguna señal (no se envíe ningún comando)
 */
 
-void verifyBTCommand() {
+void verifyBTCommand() 
+{
 
   String bufferBT;
 
-  if (BTSerial.available()) {
+  if (BTSerial.available())
+   {
     char receivedChar = BTSerial.read();
     commandBTApp = receivedChar;
     Serial.print("Received: ");
     Serial.println(receivedChar);
-    switch (receivedChar) {
+    switch (receivedChar)
+     {
       case 'A':
         Serial.println("Command A received");
         bufferBT = BTSerial.read();
@@ -535,16 +572,13 @@ void verifyBTCommand() {
         Serial.println("Tiempo recibido");
         Serial.println(timeToStartWaterPump);
         break;
-      case 'D':
-        Serial.println("Command D para drenar");
-        eventType = BLUETOOTH_SIGNAL_READY;
-        break;
-      case 'I':
-        eventType = BLUETOOTH_SIGNAL_SEND_INFORMATION;
+      case 'B':
+        // Evento bt para mandar el estado de la bomba
+        sendCurrentInformation(commandBTApp);
         break;
       case 'C':
         eventType = BLUETOOTH_SIGNAL_LIGHT_COLOUR;
-        Serial.println("Cambiaria Color por la app");
+        Serial.println("Cambia Color por la app");
         bufferBT = BTSerial.read();
 
         redColour = BTSerial.parseInt();
@@ -553,20 +587,22 @@ void verifyBTCommand() {
 
         sendCurrentInformation(commandBTApp);
         break;
-      case 'B':
-        //un evento bt para mandar el estado de bomba
-        sendCurrentInformation(commandBTApp);
+      case 'D':
+        Serial.println("Command D para drenar");
+        eventType = BLUETOOTH_SIGNAL_READY;
+        break;
+      case 'I':
+        eventType = BLUETOOTH_SIGNAL_SEND_INFORMATION;
         break;
       case 'L':
-        //un evento bt para mandar el estado para las luces
+        // Evento bt para mandar el estado de las luces
         sendCurrentInformation(commandBTApp);
         break;
       case 'W':
-        //un evento bt para modificar el estado de la luz
+        // Evento bt para modificar el estado de la luz
         eventType = BLUETOOTH_SIGNAL_LIGHT_MODE;
-        Serial.println("Cambiaria De modo porque apago o prendo");
+        Serial.println("Cambia de modo para apagar o prender luz");
         break;
-
       default:
         Serial.println("Unknown command");
         break;
@@ -574,7 +610,7 @@ void verifyBTCommand() {
   }
 }
 
-int index = INDEX_INITIALIZATION;
+
 void (*verifySensor[VERIFICATIONS_AMOUNT])() = { verifyModeSwitch, verifyWaterLevel, verifyTemperature, verifyLight, verifyTimersWaterPump, verifyBTCommand };
 
 /*
@@ -582,10 +618,12 @@ void (*verifySensor[VERIFICATIONS_AMOUNT])() = { verifyModeSwitch, verifyWaterLe
    Descripción: Esta función se encarga de constantemente capturar los distintos eventos generados por los sensores y timers del embebido
 */
 
-void captureEvent() {
+void captureEvent() 
+{
   currentTime = millis();
 
-  if ((currentTime - previousTime) > TIMER_CAPTURE_EVENT) {
+  if ((currentTime - previousTime) > TIMER_CAPTURE_EVENT)
+   {
     verifySensor[index]();
     index = ++index % VERIFICATIONS_AMOUNT;
     previousTime = currentTime;
@@ -604,14 +642,15 @@ void captureEvent() {
    Solamente se ejecutará al inicio del programa Arduino
 */
 
-void setUpEmbeddedSystem() {
+void setUpEmbeddedSystem() 
+{
   // Inicialización de comunicación serial
   Serial.begin(SERIAL_COMMUNICATION_SPEED);
 
   // Inicialización de comunicación con Bluetooth
-  BTSerial.begin(SERIAL_COMMUNICATION_SPEED);
+  BTSerial.begin(bpsBT);
 
-  //Inicializacion de la variable sensor para la temperatura
+  // Inicialización de la variable sensor para la temperatura
   sensor.begin();
 
   // Inicialización de pines en modo INPUT
@@ -631,26 +670,22 @@ void setUpEmbeddedSystem() {
 
   // Inicialización Bounce2 para interruptor
   debouncer.attach(switchPin); // Asocia el pin al debouncer
-  debouncer.interval(50); // Establece el intervalo de debounce en milisegundos
+  debouncer.interval(DEBOUNCE_INTERVAL); // Establece el intervalo de debounce en milisegundos
 
-  // Inicializacion BT
-  BTSerial.print("AT+NAME");
-  BTSerial.print(NOMBRE);
-  delay(1000);
+  // Inicialización para AT
+  pinMode(PIN_KEY, OUTPUT);
+  digitalWrite(PIN_KEY, HIGH);
 
-  BTSerial.print("AT+BAUD");
-  BTSerial.print(BPS);
-  delay(1000);
-
-  BTSerial.print("AT+PIN");
-  BTSerial.print(PASS);
-  delay(1000);
+  // Comando AT con el nombre y pass
+  BTSerial.println(comandoName);
+  BTSerial.println(comandoPass);
 
   // Inicialización del Estado de la FSM
   currentState = IDLE;
 
-  //verificar estado switch
+  // Verificar estado switch
   verifyModeSwitch();
+
   Serial.println("Inicializando");
 
   // Inicialización de Temporizador
@@ -1081,13 +1116,12 @@ void fsm()
 }
 
 
-void setup() {
-
+void setup() 
+{
   setUpEmbeddedSystem();
 }
 
-void loop() {
-
+void loop() 
+{
   fsm();
-
 }
