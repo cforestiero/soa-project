@@ -21,11 +21,9 @@ public class DewaterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dewater);
 
-        // Set up the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Enable the Up button
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -39,9 +37,7 @@ public class DewaterActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Se envia command para que la bomba ande
                 bluetoothManager.sendCommand(Constants.DEWATER_SIGNAL_READY);
-                // Guarda la hora de drenado
                 saveDewaterDate();
 
                 Intent intent = new Intent(DewaterActivity.this, MainActivity.class);

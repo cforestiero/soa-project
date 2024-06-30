@@ -34,7 +34,6 @@ public class BluetoothManager {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(Constants.DEVICE_ADDRESS);
         try {
-            // Checkear permisos de bluetooth
             if (ActivityCompat.checkSelfPermission(contextWeakReference.get(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity,
                         new String[]{Manifest.permission.BLUETOOTH_CONNECT},
@@ -44,9 +43,7 @@ public class BluetoothManager {
             bluetoothSocket.connect();
             bufferedReader = new BufferedReader(new InputStreamReader(bluetoothSocket.getInputStream()));
             outputStream = bluetoothSocket.getOutputStream();
-            Log.d("BluetoothManager", "Bluetooth connection established");
         } catch (IOException e) {
-            Log.e("BluetoothManager", "Error establishing Bluetooth connection", e);
             e.printStackTrace();
         }
     }
@@ -69,21 +66,16 @@ public class BluetoothManager {
 
     private class ConnectedThread extends Thread {
         public void run() {
-            Log.d("BluetoothManager", "ConnectedThread started");
             while (true) {
                 try {
                     if (bufferedReader != null) {
                         String data = bufferedReader.readLine();
                         if (data != null && handler != null) {
-                            Log.d("BluetoothManager", "Received data: " + data);
                             Message msg = handler.obtainMessage(0, data);
-                            // TODO: Borrar este log
-                            Log.d("RECIBO", "Data recibida: " + msg);
                             handler.sendMessage(msg);
                         }
                     }
                 } catch (IOException e) {
-                    Log.e("BluetoothManager", "Error reading data", e);
                     e.printStackTrace();
                     break;
                 }
@@ -95,8 +87,6 @@ public class BluetoothManager {
         try {
             if (outputStream != null) {
                 outputStream.write(command.getBytes());
-                // TODO: Borrar este log
-                Log.d("ENVIO", "Data sent: " + command);
             }
         } catch (IOException e) {
             e.printStackTrace();

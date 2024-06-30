@@ -59,30 +59,25 @@ public class LightActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Bluetooth
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
         bluetoothManager.setHandler(bluetoothIn);
 
-        // Set up the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Enable the Up button
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // Buttons
         btnConfirm = findViewById(R.id.btn_confirm);
-        // Color elements
         switchPower = findViewById(R.id.switch1);
         textView = findViewById(R.id.textView);
         linearlayout = findViewById(R.id.linearlayout);
         imageView = findViewById(R.id.imageView);
-
         layout = findViewById(R.id.linearlayout);
+
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -96,43 +91,31 @@ public class LightActivity extends AppCompatActivity {
                 Toast.makeText(LightActivity.this, R.string.selectedColourSavedMessage, Toast.LENGTH_SHORT).show();
                 imageView.setColorFilter(selectedColor);
                 sendColourToLed();
-                // Save the color to SharedPreferences
                 saveColour();
             }
         });
 
-        // Load the switch state and selected color from SharedPreferences
         boolean switchState = loadSwitchPositionAndColour();
         switchPower.setChecked(switchState);
-        // Si no esta seleccionado escondo todo lo de los colores
         if (!switchState) {
             setComponentsVisibility(View.INVISIBLE);
         }
 
-        // Para saber la posicion inicial del embebido
         bluetoothManager.sendCommand(Constants.LIGHTS);
 
-        // Set the initial color of the ImageView if a color was previously selected
         if (selectedColor != Constants.DEFAULT_COLOUR_BLACK) {
-            // Cambiar el color de fondo del layout
             layout.setBackgroundColor(selectedColor);
-            // Cambiar el color del ImageView
             imageView.setColorFilter(selectedColor);
-            // Enviar comando de color al Arduino
             sendColourToLed();
         }
 
-        // Set the listener for the Switch
         switchPower.setOnCheckedChangeListener((buttonView, isChecked) -> {
             int visibility = isChecked ? View.VISIBLE : View.INVISIBLE;
             setComponentsVisibility(visibility);
 
-            // Si no necesita solo sincronizar el switch de la app
-            // le envio el comando para que se apague o se prenda tambien
             if (!justSinchronizeSwitch)
                 bluetoothManager.sendCommand(Constants.SWITCH_LIGTHS_MODE);
 
-            // Save the switch state to SharedPreferences
             saveSwitchState(isChecked);
         });
     }
@@ -165,7 +148,6 @@ public class LightActivity extends AppCompatActivity {
     }
 
     private boolean loadSwitchPositionAndColour() {
-        // Load the switch state and selected color from SharedPreferences
         SharedPreferences preferences = getSharedPreferences(Constants.LIGHT_PREFS, MODE_PRIVATE);
         boolean switchState = preferences.getBoolean(Constants.SWITCH_STATE_KEY, switchDefaultValue);
         selectedColor = preferences.getInt(Constants.SELECTED_COLOR_KEY, Constants.DEFAULT_COLOUR_BLACK); // Default color 0 (usually black)
@@ -174,10 +156,8 @@ public class LightActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
         switch (item.getItemId()) {
             case android.R.id.home:
-                // Navigate back to the parent activity
                 finish();
                 return true;
             default:
@@ -207,8 +187,6 @@ public class LightActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             String receivedMessage = (String) msg.obj;
-            Log.d("LightActivity", "Received message: " + receivedMessage);
-            // Handle the received message
             String[] parts = receivedMessage.split(Constants.MESSAGE_SEPARATOR);
 
             switch (parts[Constants.MESSAGE_CODE]) {
@@ -227,37 +205,26 @@ public class LightActivity extends AppCompatActivity {
 
     private void handleLightModeChange(String currentState) {
         if (isDayMode(currentState)) {
-            // Cambia el default para cuando inicia la pantalla de nuevo
             switchDefaultValue = false;
-            // Si esta en modo dia la luz se apaga
             switchPower.setChecked(false);
         } else if (isNightMode(currentState)){
-            // Cambia el default para cuando inicia la pantalla de nuevo
             switchDefaultValue = true;
-            // Sino esta en modo noche y la luz se prende
             switchPower.setChecked(true);
         }
     }
 
     private void handleEvent(String finalState, String currentEvent) {
-        // Si el evento es por sensor
         if (isLightEvent(currentEvent)) {
-            // Sincronizar el switch de la app pero sin cambiar en el circuito
             justSinchronizeSwitch = true;
             return;
         }
 
         justSinchronizeSwitch = false;
-        // Sino me fijo el modo
         if (isDayMode(finalState)) {
-            // Cambia el default para cuando inicia la pantalla de nuevo
             switchDefaultValue = false;
-            // Si esta en modo dia la luz se apaga
             switchPower.setChecked(false);
         } else if (isNightMode(finalState)){
-            // Cambia el default para cuando inicia la pantalla de nuevo
             switchDefaultValue = true;
-            // Sino esta en modo noche y la luz se prende
             switchPower.setChecked(true);
         }
 

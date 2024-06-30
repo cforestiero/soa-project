@@ -25,11 +25,9 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
 
-        // Set up the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Enable the Up button
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -39,28 +37,22 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
         Button incrementButton = findViewById(R.id.incrementButton);
         Button decrementButton = findViewById(R.id.decrementButton);
 
-        // Set valor maximo y minimo para seleccionar las horas en el numberPicker
         numberPicker.setMinValue(Constants.MIN_FILTER_HOURS);
         numberPicker.setMaxValue(Constants.MAX_FILTER_HOURS);
-        numberPicker.setValue(Constants.DEFAULT_FILTER_HOURS); // Set valor inicial
+        numberPicker.setValue(Constants.DEFAULT_FILTER_HOURS);
 
-        // Establece un listener para el NumberPicker para actualizar el valor del numberPicker
         numberPicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
             numberPicker.setValue(newVal);
         });
 
-        // Establece un listener para el botón de incremento(+)
         incrementButton.setOnClickListener(v -> {
-            // Incrementa el valor del NumberPicker
             int currentVal = numberPicker.getValue();
             if (currentVal < numberPicker.getMaxValue()) {
                 numberPicker.setValue(++currentVal);
             }
         });
 
-        // Establece un listener para el botón de decremento(-)
         decrementButton.setOnClickListener(v -> {
-            // Decrementa el valor del NumberPicker
             int currentVal = numberPicker.getValue();
             if (currentVal > numberPicker.getMinValue()) {
                 numberPicker.setValue(--currentVal);
@@ -71,7 +63,6 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Envio del dato que selecciono el usuario al Arduino
                 int filterHours = numberPicker.getValue();
                 String command = String.format("%s %d",Constants.FILTER_SCHEDULE, Common.hoursToMilliseconds(filterHours));
                 bluetoothManager.sendCommand(command);

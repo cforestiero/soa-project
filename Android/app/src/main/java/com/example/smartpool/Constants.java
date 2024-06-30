@@ -10,33 +10,19 @@ public class Constants {
     public static final String MESSAGE_SEPARATOR = ",";
 
     // States
-    public static final String STATE_IDLE = "IDL";
-    public static final String STATE_DRAINING_MODE = "DM";
     public static final String STATE_DRAINING_DAY_MODE = "DDM";
     public static final String STATE_DRAINING_PROCESS_DAY = "DPD";
     public static final String STATE_DRAINING_NIGHT_MODE = "DNM";
     public static final String STATE_DRAINING_PROCESS_NIGHT = "DPN";
-    public static final String STATE_FILTERING_MODE = "FM";
     public static final String STATE_FILTERING_DAY_MODE = "FDM";
     public static final String STATE_FILTERING_PROCESS_DAY = "FPD";
     public static final String STATE_FILTERING_NIGHT_MODE = "FNM";
     public static final String STATE_FILTERING_PROCESS_NIGHT = "FPN";
 
     // Events
-    public static final String EVENT_SWITCH_DRAINING = "SWITCH_DRAINING";
-    public static final String EVENT_SWITCH_FILTERING = "SWITCH_FILTERING";
     public static final String EVENT_HIGH_LIGHT = "HIGH_LIGHT";
     public static final String EVENT_MEDIUM_LIGHT = "MEDIUM_LIGHT";
     public static final String EVENT_LOW_LIGHT = "LOW_LIGHT";
-    public static final String EVENT_TIMER_START_WATER_PUMP = "TIMER_START_WATER_PUMP";
-    public static final String EVENT_TIMER_STOP_WATER_PUMP = "TIMER_STOP_WATER_PUMP";
-    public static final String EVENT_MAX_TEMPERATURE = "MAX_TEMPERATURE";
-    public static final String EVENT_LOW_WATER_LEVEL = "LOW_WATER_LEVEL";
-    public static final String EVENT_BLUETOOTH_SIGNAL_READY = "BLUETOOTH_SIGNAL_READY";
-    public static final String EVENT_BLUETOOTH_SIGNAL_LIGHT_COLOUR = "BLUETOOTH_SIGNAL_LIGHT_COLOUR";
-    public static final String EVENT_BLUETOOTH_SIGNAL_LIGHT_MODE = "BLUETOOTH_SIGNAL_LIGHT_MODE";
-    public static final String EVENT_BLUETOOTH_SIGNAL_SEND_INFORMATION = "BLUETOOTH_SIGNAL_SEND_INFORMATION";
-    public static final String EVENT_CONTINUE = "EVENT_CONTINUE";
 
     // Pump modes
     public static final String PUMP_MODE_FILTER = "F";

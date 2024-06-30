@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             String receivedMessage = (String) msg.obj;
-            Log.d("MainActivity", "Received message: " + receivedMessage);
             String[] parts = receivedMessage.split(Constants.MESSAGE_SEPARATOR);
 
             switch (parts[Constants.MESSAGE_CODE]) {

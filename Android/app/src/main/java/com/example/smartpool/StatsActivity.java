@@ -29,11 +29,9 @@ public class StatsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
 
-        // Set up the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Enable the Up button
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -54,7 +52,6 @@ public class StatsActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             String receivedMessage = (String) msg.obj;
-            Log.d("StatsActivity", "Received message: " + receivedMessage);
             String[] parts = receivedMessage.split(Constants.MESSAGE_SEPARATOR);
 
             switch (parts[Constants.MESSAGE_CODE]) {
@@ -79,12 +76,10 @@ public class StatsActivity extends AppCompatActivity {
                 waterLevelTextView.setText(R.string.waterLevelLow);
             }
 
-            // Obtener ultimo desagote
             SharedPreferences preferences = getSharedPreferences(Constants.STATS_PREFS, MODE_PRIVATE);
             String drainingLastTime = preferences.getString(Constants.DEWATER_TIME_KEY, "");
             drainingLastTimeTextView.setText(String.format("%s%s", getString(R.string.lastDewaterTimeLabel), drainingLastTime));
 
-            // Obtener ultimo filtrado
             String filterLastTime = preferences.getString(Constants.FILTER_TIME_KEY, "");
             filterLastTimeTextView.setText(String.format("%s%s", getString(R.string.lastFilterTimeLabel), filterLastTime));
         }
