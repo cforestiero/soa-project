@@ -14,7 +14,6 @@ import java.lang.ref.WeakReference;
 
 public class DewaterActivity extends AppCompatActivity {
 
-    private static final String DEWATER_SIGNAL_READY = "D";
     private BluetoothManager bluetoothManager;
 
     @Override
@@ -41,7 +40,7 @@ public class DewaterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Se envia command para que la bomba ande
-                bluetoothManager.sendCommand(DEWATER_SIGNAL_READY);
+                bluetoothManager.sendCommand(Constants.DEWATER_SIGNAL_READY);
                 // Guarda la hora de drenado
                 saveDewaterDate();
 

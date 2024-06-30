@@ -55,7 +55,7 @@ public class StatsActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             String receivedMessage = (String) msg.obj;
             Log.d("StatsActivity", "Received message: " + receivedMessage);
-            String[] parts = receivedMessage.split(",");
+            String[] parts = receivedMessage.split(Constants.MESSAGE_SEPARATOR);
 
             switch (parts[Constants.MESSAGE_CODE]) {
                 case Constants.STATS:

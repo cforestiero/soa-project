@@ -22,10 +22,6 @@ import java.util.UUID;
 
 public class BluetoothManager {
 
-    private static final int REQUEST_BLUETOOTH_PERMISSION = 1;
-    private static final String DEVICE_ADDRESS = "98:D3:31:F6:A0:71"; // Dirección MAC del módulo Bluetooth
-    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
     private static BluetoothManager instance;
     private OutputStream outputStream;
     private BluetoothAdapter bluetoothAdapter;
@@ -36,15 +32,15 @@ public class BluetoothManager {
 
     private BluetoothManager(WeakReference<Context> contextWeakReference, Activity activity) {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(DEVICE_ADDRESS);
+        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(Constants.DEVICE_ADDRESS);
         try {
             // Checkear permisos de bluetooth
             if (ActivityCompat.checkSelfPermission(contextWeakReference.get(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity,
                         new String[]{Manifest.permission.BLUETOOTH_CONNECT},
-                        REQUEST_BLUETOOTH_PERMISSION);
+                        Constants.REQUEST_BLUETOOTH_PERMISSION);
             }
-            bluetoothSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+            bluetoothSocket = device.createRfcommSocketToServiceRecord(Constants.MY_UUID);
             bluetoothSocket.connect();
             bufferedReader = new BufferedReader(new InputStreamReader(bluetoothSocket.getInputStream()));
             outputStream = bluetoothSocket.getOutputStream();
@@ -101,16 +97,6 @@ public class BluetoothManager {
                 outputStream.write(command.getBytes());
                 // TODO: Borrar este log
                 Log.d("ENVIO", "Data sent: " + command);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void closeConnection() {
-        try {
-            if (bluetoothSocket != null) {
-                bluetoothSocket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

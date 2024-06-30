@@ -48,7 +48,6 @@ public class LightActivity extends AppCompatActivity {
     private View btnConfirm;
     private ImageView imageView;
 
-    @SuppressLint("CutPasteId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,11 +109,11 @@ public class LightActivity extends AppCompatActivity {
             setComponentsVisibility(View.INVISIBLE);
         }
 
-        // para que se usaba esto?
+        // Para saber la posicion inicial del embebido
         bluetoothManager.sendCommand(Constants.LIGHTS);
 
         // Set the initial color of the ImageView if a color was previously selected
-        if (selectedColor != 0) {
+        if (selectedColor != Constants.DEFAULT_COLOUR_BLACK) {
             // Cambiar el color de fondo del layout
             layout.setBackgroundColor(selectedColor);
             // Cambiar el color del ImageView
@@ -169,7 +168,7 @@ public class LightActivity extends AppCompatActivity {
         // Load the switch state and selected color from SharedPreferences
         SharedPreferences preferences = getSharedPreferences(Constants.LIGHT_PREFS, MODE_PRIVATE);
         boolean switchState = preferences.getBoolean(Constants.SWITCH_STATE_KEY, switchDefaultValue);
-        selectedColor = preferences.getInt(Constants.SELECTED_COLOR_KEY, 0); // Default color 0 (usually black)
+        selectedColor = preferences.getInt(Constants.SELECTED_COLOR_KEY, Constants.DEFAULT_COLOUR_BLACK); // Default color 0 (usually black)
         return switchState;
     }
 
@@ -210,7 +209,7 @@ public class LightActivity extends AppCompatActivity {
             String receivedMessage = (String) msg.obj;
             Log.d("LightActivity", "Received message: " + receivedMessage);
             // Handle the received message
-            String[] parts = receivedMessage.split(",");
+            String[] parts = receivedMessage.split(Constants.MESSAGE_SEPARATOR);
 
             switch (parts[Constants.MESSAGE_CODE]) {
                 case Constants.LIGHTS:
@@ -297,5 +296,4 @@ public class LightActivity extends AppCompatActivity {
                 message.equals(Constants.STATE_DRAINING_PROCESS_NIGHT) ||
                 message.equals(Constants.STATE_DRAINING_NIGHT_MODE);
     }
-
 }

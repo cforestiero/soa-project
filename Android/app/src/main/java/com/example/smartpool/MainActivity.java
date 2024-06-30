@@ -24,7 +24,6 @@ import java.lang.ref.WeakReference;
 public class MainActivity extends AppCompatActivity {
 
     private BluetoothManager bluetoothManager;
-    Button buttonLights;
     Button buttonDewater;
     TextView rectanglePumpActionTextView;
 
@@ -40,11 +39,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         ImageButton configButton = findViewById(R.id.imageButton);
-        buttonLights = findViewById(R.id.button);
+        Button buttonStats = findViewById(R.id.buttonInfo);
+        Button buttonLights = findViewById(R.id.button);
         buttonDewater = findViewById(R.id.buttonDewater);
         rectanglePumpActionTextView = findViewById(R.id.rectangleTextView);
-        Button buttonStats = findViewById(R.id.buttonInfo);
-        Button buttonDewater = findViewById(R.id.buttonDewater);
 
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             String receivedMessage = (String) msg.obj;
             Log.d("MainActivity", "Received message: " + receivedMessage);
-            String[] parts = receivedMessage.split(",");
+            String[] parts = receivedMessage.split(Constants.MESSAGE_SEPARATOR);
 
             switch (parts[Constants.MESSAGE_CODE]) {
                 case Constants.PUMP_MODE:

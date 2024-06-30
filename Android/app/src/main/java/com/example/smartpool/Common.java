@@ -14,6 +14,6 @@ public class Common {
     }
 
     public static long hoursToMilliseconds(int hours) {
-        return hours * 60L * 60L * 1000L;
+        return hours * Constants.MINUTES * Constants.SECONDS * Constants.MILLISECONDS;
     }
 }

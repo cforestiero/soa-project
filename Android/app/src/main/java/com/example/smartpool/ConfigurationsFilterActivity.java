@@ -54,7 +54,7 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
             // Incrementa el valor del NumberPicker
             int currentVal = numberPicker.getValue();
             if (currentVal < numberPicker.getMaxValue()) {
-                numberPicker.setValue(currentVal + 1);
+                numberPicker.setValue(++currentVal);
             }
         });
 
@@ -63,7 +63,7 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
             // Decrementa el valor del NumberPicker
             int currentVal = numberPicker.getValue();
             if (currentVal > numberPicker.getMinValue()) {
-                numberPicker.setValue(currentVal - 1);
+                numberPicker.setValue(--currentVal);
             }
         });
 
@@ -73,7 +73,7 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Envio del dato que selecciono el usuario al Arduino
                 int filterHours = numberPicker.getValue();
-                String command = String.format("%s %d\n",Constants.FILTER_SCHEDULE, Common.hoursToMilliseconds(filterHours));
+                String command = String.format("%s %d",Constants.FILTER_SCHEDULE, Common.hoursToMilliseconds(filterHours));
                 bluetoothManager.sendCommand(command);
 
                 Intent intent = new Intent(ConfigurationsFilterActivity.this, MainActivity.class);
