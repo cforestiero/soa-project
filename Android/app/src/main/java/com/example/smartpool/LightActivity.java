@@ -30,7 +30,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.lang.ref.WeakReference;
 
-public class LightActivity extends AppCompatActivity {
+public class LightActivity extends AppCompatActivity
+{
 
     private Boolean switchDefaultValue = false;
     private Boolean justSinchronizeSwitch = false;
@@ -49,11 +50,13 @@ public class LightActivity extends AppCompatActivity {
     private ImageView imageView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_light);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) ->
+        {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -67,7 +70,8 @@ public class LightActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
+        if (actionBar != null)
+        {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -79,14 +83,17 @@ public class LightActivity extends AppCompatActivity {
         layout = findViewById(R.id.linearlayout);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (sensorManager != null) {
+        if (sensorManager != null)
+        {
             accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             accelerometerEventListener = new AccelerometerEventListener(layout);
         }
 
-        btnConfirm.setOnClickListener(new View.OnClickListener() {
+        btnConfirm.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 selectedColor = ((ColorDrawable) layout.getBackground()).getColor();
                 Toast.makeText(LightActivity.this, R.string.selectedColourSavedMessage, Toast.LENGTH_SHORT).show();
                 imageView.setColorFilter(selectedColor);
@@ -97,19 +104,22 @@ public class LightActivity extends AppCompatActivity {
 
         boolean switchState = loadSwitchPositionAndColour();
         switchPower.setChecked(switchState);
-        if (!switchState) {
+        if (!switchState)
+        {
             setComponentsVisibility(View.INVISIBLE);
         }
 
         bluetoothManager.sendCommand(Constants.LIGHTS);
 
-        if (selectedColor != Constants.DEFAULT_COLOUR_BLACK) {
+        if (selectedColor != Constants.DEFAULT_COLOUR_BLACK)
+        {
             layout.setBackgroundColor(selectedColor);
             imageView.setColorFilter(selectedColor);
             sendColourToLed();
         }
 
-        switchPower.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        switchPower.setOnCheckedChangeListener((buttonView, isChecked) ->
+        {
             int visibility = isChecked ? View.VISIBLE : View.INVISIBLE;
             setComponentsVisibility(visibility);
 
@@ -120,7 +130,8 @@ public class LightActivity extends AppCompatActivity {
         });
     }
 
-    private void sendColourToLed() {
+    private void sendColourToLed()
+    {
         int red = Color.red(selectedColor);
         int green = Color.green(selectedColor);
         int blue = Color.blue(selectedColor);
@@ -128,26 +139,30 @@ public class LightActivity extends AppCompatActivity {
         bluetoothManager.sendCommand(colorCommand);
     }
 
-    private void setComponentsVisibility(int visibility) {
+    private void setComponentsVisibility(int visibility)
+    {
         textView.setVisibility(visibility);
         linearlayout.setVisibility(visibility);
         btnConfirm.setVisibility(visibility);
         imageView.setVisibility(visibility);
     }
 
-    private void saveSwitchState(boolean isChecked) {
+    private void saveSwitchState(boolean isChecked)
+    {
         SharedPreferences.Editor editor = getSharedPreferences(Constants.LIGHT_PREFS, MODE_PRIVATE).edit();
         editor.putBoolean(Constants.SWITCH_STATE_KEY, isChecked);
         editor.apply();
     }
 
-    private void saveColour() {
+    private void saveColour()
+    {
         SharedPreferences.Editor editor = getSharedPreferences(Constants.LIGHT_PREFS, MODE_PRIVATE).edit();
         editor.putInt(Constants.SELECTED_COLOR_KEY, selectedColor);
         editor.apply();
     }
 
-    private boolean loadSwitchPositionAndColour() {
+    private boolean loadSwitchPositionAndColour()
+    {
         SharedPreferences preferences = getSharedPreferences(Constants.LIGHT_PREFS, MODE_PRIVATE);
         boolean switchState = preferences.getBoolean(Constants.SWITCH_STATE_KEY, switchDefaultValue);
         selectedColor = preferences.getInt(Constants.SELECTED_COLOR_KEY, Constants.DEFAULT_COLOUR_BLACK); // Default color 0 (usually black)
@@ -155,8 +170,10 @@ public class LightActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
             case android.R.id.home:
                 finish();
                 return true;
@@ -166,9 +183,11 @@ public class LightActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume()
+    {
         super.onResume();
-        if (accelerometerSensor != null) {
+        if (accelerometerSensor != null)
+        {
             sensorManager.registerListener(accelerometerEventListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
         boolean switchState = loadSwitchPositionAndColour();
@@ -176,20 +195,25 @@ public class LightActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
+    protected void onPause()
+    {
         super.onPause();
-        if (accelerometerSensor != null) {
+        if (accelerometerSensor != null)
+        {
             sensorManager.unregisterListener(accelerometerEventListener);
         }
     }
 
-    final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
+    final Handler bluetoothIn = new Handler(Looper.getMainLooper())
+    {
         @Override
-        public void handleMessage(@NonNull Message msg) {
+        public void handleMessage(@NonNull Message msg)
+        {
             String receivedMessage = (String) msg.obj;
             String[] parts = receivedMessage.split(Constants.MESSAGE_SEPARATOR);
 
-            switch (parts[Constants.MESSAGE_CODE]) {
+            switch (parts[Constants.MESSAGE_CODE])
+            {
                 case Constants.LIGHTS:
                     handleLightModeChange(parts[Constants.CURRENT_STATE]);
                     break;
@@ -203,61 +227,74 @@ public class LightActivity extends AppCompatActivity {
         }
     };
 
-    private void handleLightModeChange(String currentState) {
-        if (isDayMode(currentState)) {
+    private void handleLightModeChange(String currentState)
+    {
+        if (isDayMode(currentState))
+        {
             switchDefaultValue = false;
             switchPower.setChecked(false);
-        } else if (isNightMode(currentState)){
+        } else if (isNightMode(currentState))
+        {
             switchDefaultValue = true;
             switchPower.setChecked(true);
         }
     }
 
-    private void handleEvent(String finalState, String currentEvent) {
-        if (isLightEvent(currentEvent)) {
+    private void handleEvent(String finalState, String currentEvent)
+    {
+        if (isLightEvent(currentEvent))
+        {
             justSinchronizeSwitch = true;
             return;
         }
 
         justSinchronizeSwitch = false;
-        if (isDayMode(finalState)) {
+        if (isDayMode(finalState))
+        {
             switchDefaultValue = false;
             switchPower.setChecked(false);
-        } else if (isNightMode(finalState)){
+        } else if (isNightMode(finalState))
+        {
             switchDefaultValue = true;
             switchPower.setChecked(true);
         }
 
-        if (isFilteringProcess(finalState)) {
+        if (isFilteringProcess(finalState))
+        {
             saveFilterDate();
         }
     }
 
-    private boolean isFilteringProcess(String message) {
+    private boolean isFilteringProcess(String message)
+    {
         return message.equals(Constants.STATE_FILTERING_PROCESS_DAY) ||
                 message.equals(Constants.STATE_FILTERING_PROCESS_NIGHT);
     }
 
-    private void saveFilterDate() {
+    private void saveFilterDate()
+    {
         SharedPreferences.Editor editor = getSharedPreferences(Constants.STATS_PREFS, MODE_PRIVATE).edit();
         editor.putString(Constants.FILTER_TIME_KEY, Common.getCurrentDateTime());
         editor.apply();
     }
 
-    private boolean isLightEvent(String message) {
+    private boolean isLightEvent(String message)
+    {
         return message.equals(Constants.EVENT_HIGH_LIGHT) ||
                 message.equals(Constants.EVENT_MEDIUM_LIGHT) ||
                 message.equals(Constants.EVENT_LOW_LIGHT);
     }
 
-    private boolean isDayMode(String message) {
+    private boolean isDayMode(String message)
+    {
         return message.equals(Constants.STATE_FILTERING_PROCESS_DAY) ||
                 message.equals(Constants.STATE_FILTERING_DAY_MODE) ||
                 message.equals(Constants.STATE_DRAINING_PROCESS_DAY) ||
                 message.equals(Constants.STATE_DRAINING_DAY_MODE);
     }
 
-    private boolean isNightMode(String message) {
+    private boolean isNightMode(String message)
+    {
         return message.equals(Constants.STATE_FILTERING_PROCESS_NIGHT) ||
                 message.equals(Constants.STATE_FILTERING_NIGHT_MODE) ||
                 message.equals(Constants.STATE_DRAINING_PROCESS_NIGHT) ||

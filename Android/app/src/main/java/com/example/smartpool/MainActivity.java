@@ -21,18 +21,21 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.lang.ref.WeakReference;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+{
 
     private BluetoothManager bluetoothManager;
     Button buttonDewater;
     TextView rectanglePumpActionTextView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) ->
+        {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -49,30 +52,38 @@ public class MainActivity extends AppCompatActivity {
         bluetoothManager.setHandler(bluetoothIn);
         bluetoothManager.sendCommand(Constants.PUMP_MODE);
 
-        buttonLights.setOnClickListener(new View.OnClickListener() {
+        buttonLights.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 startActivity(new Intent(MainActivity.this, LightActivity.class));
             }
         });
 
-        configButton.setOnClickListener(new View.OnClickListener() {
+        configButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 startActivity(new Intent(MainActivity.this, ConfigurationsFilterActivity.class));
             }
         });
 
-        buttonStats.setOnClickListener(new View.OnClickListener() {
+        buttonStats.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 startActivity(new Intent(MainActivity.this, StatsActivity.class));
             }
         });
 
-        buttonDewater.setOnClickListener(new View.OnClickListener() {
+        buttonDewater.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 startActivity(new Intent(MainActivity.this, DewaterActivity.class));
             }
         });
@@ -80,18 +91,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume()
+    {
         super.onResume();
         bluetoothManager.sendCommand(Constants.PUMP_MODE);
     }
 
-    final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
+    final Handler bluetoothIn = new Handler(Looper.getMainLooper())
+    {
         @Override
-        public void handleMessage(@NonNull Message msg) {
+        public void handleMessage(@NonNull Message msg)
+        {
             String receivedMessage = (String) msg.obj;
             String[] parts = receivedMessage.split(Constants.MESSAGE_SEPARATOR);
 
-            switch (parts[Constants.MESSAGE_CODE]) {
+            switch (parts[Constants.MESSAGE_CODE])
+            {
                 case Constants.PUMP_MODE:
                     handleModeChange(parts[Constants.CURRENT_PUMP_MODE]);
                     break;
@@ -104,22 +119,28 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        private void handleModeChange(String mode) {
-            if (isFilteringMode(mode)) {
+        private void handleModeChange(String mode)
+        {
+            if (isFilteringMode(mode))
+            {
                 buttonDewater.setVisibility(View.GONE);
-            } else {
+            } else
+            {
                 buttonDewater.setVisibility(View.VISIBLE);
             }
         }
 
-        private void handleEvent(String finalState, String currentEvent) {
-            if (isFilteringProcess(finalState)) {
+        private void handleEvent(String finalState, String currentEvent)
+        {
+            if (isFilteringProcess(finalState))
+            {
                 rectanglePumpActionTextView.setText(R.string.filteringProcessMessage);
                 rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
                 saveFilterDate();
                 return;
             }
-            if (isDewateringProcess(finalState)) {
+            if (isDewateringProcess(finalState))
+            {
                 rectanglePumpActionTextView.setText(R.string.dewateringProcessMessage);
                 rectanglePumpActionTextView.setVisibility(TextView.VISIBLE);
                 return;
@@ -128,21 +149,25 @@ public class MainActivity extends AppCompatActivity {
             rectanglePumpActionTextView.setVisibility(TextView.GONE);
         }
 
-        private boolean isFilteringMode(String message) {
+        private boolean isFilteringMode(String message)
+        {
             return message.equals(Constants.PUMP_MODE_FILTER);
         }
 
-        private boolean isFilteringProcess(String message) {
+        private boolean isFilteringProcess(String message)
+        {
             return message.equals(Constants.STATE_FILTERING_PROCESS_DAY) ||
                     message.equals(Constants.STATE_FILTERING_PROCESS_NIGHT);
         }
 
-        private boolean isDewateringProcess(String message) {
+        private boolean isDewateringProcess(String message)
+        {
             return message.equals(Constants.STATE_DRAINING_PROCESS_DAY) ||
                     message.equals(Constants.STATE_DRAINING_PROCESS_NIGHT);
         }
 
-        private void saveFilterDate() {
+        private void saveFilterDate()
+        {
             SharedPreferences.Editor editor = getSharedPreferences(Constants.STATS_PREFS, MODE_PRIVATE).edit();
             editor.putString(Constants.FILTER_TIME_KEY, Common.getCurrentDateTime());
             editor.apply();

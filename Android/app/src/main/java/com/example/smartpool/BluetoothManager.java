@@ -20,7 +20,8 @@ import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.UUID;
 
-public class BluetoothManager {
+public class BluetoothManager
+{
 
     private static BluetoothManager instance;
     private OutputStream outputStream;
@@ -30,10 +31,12 @@ public class BluetoothManager {
     private Handler handler;
     private WeakReference<Context> contextWeakReference;
 
-    private BluetoothManager(WeakReference<Context> contextWeakReference, Activity activity) {
+    private BluetoothManager(WeakReference<Context> contextWeakReference, Activity activity)
+    {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(Constants.DEVICE_ADDRESS);
-        try {
+        try
+        {
             if (ActivityCompat.checkSelfPermission(contextWeakReference.get(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity,
                         new String[]{Manifest.permission.BLUETOOTH_CONNECT},
@@ -43,39 +46,50 @@ public class BluetoothManager {
             bluetoothSocket.connect();
             bufferedReader = new BufferedReader(new InputStreamReader(bluetoothSocket.getInputStream()));
             outputStream = bluetoothSocket.getOutputStream();
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
     public static BluetoothManager getInstance(WeakReference<Context> contextWeakReference, Activity activity) {
-        if (instance == null) {
+        if (instance == null)
+        {
             instance = new BluetoothManager(contextWeakReference, activity);
         }
         return instance;
     }
 
-    public void setHandler(Handler handler) {
+    public void setHandler(Handler handler)
+    {
         this.handler = handler;
         new ConnectedThread().start();
     }
 
-    public void setContext(Context context) {
+    public void setContext(Context context)
+    {
         this.contextWeakReference = new WeakReference<>(context);
     }
 
-    private class ConnectedThread extends Thread {
-        public void run() {
-            while (true) {
-                try {
-                    if (bufferedReader != null) {
+    private class ConnectedThread extends Thread
+    {
+        public void run()
+        {
+            while (true)
+            {
+                try
+                {
+                    if (bufferedReader != null)
+                    {
                         String data = bufferedReader.readLine();
-                        if (data != null && handler != null) {
+                        if (data != null && handler != null)
+                        {
                             Message msg = handler.obtainMessage(0, data);
                             handler.sendMessage(msg);
                         }
                     }
-                } catch (IOException e) {
+                } catch (IOException e)
+                {
                     e.printStackTrace();
                     break;
                 }
@@ -83,12 +97,16 @@ public class BluetoothManager {
         }
     }
 
-    public void sendCommand(String command) {
-        try {
-            if (outputStream != null) {
+    public void sendCommand(String command)
+    {
+        try
+        {
+            if (outputStream != null)
+            {
                 outputStream.write(command.getBytes());
             }
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
     }

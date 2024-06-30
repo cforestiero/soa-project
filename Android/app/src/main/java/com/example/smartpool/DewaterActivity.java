@@ -12,12 +12,14 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.lang.ref.WeakReference;
 
-public class DewaterActivity extends AppCompatActivity {
+public class DewaterActivity extends AppCompatActivity
+{
 
     private BluetoothManager bluetoothManager;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dewater);
 
@@ -25,7 +27,8 @@ public class DewaterActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
+        if (actionBar != null)
+        {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -34,9 +37,11 @@ public class DewaterActivity extends AppCompatActivity {
         bluetoothManager = BluetoothManager.getInstance(new WeakReference<>(this), this);
         bluetoothManager.setContext(this);
 
-        confirmButton.setOnClickListener(new View.OnClickListener() {
+        confirmButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 bluetoothManager.sendCommand(Constants.DEWATER_SIGNAL_READY);
                 saveDewaterDate();
 
@@ -47,7 +52,8 @@ public class DewaterActivity extends AppCompatActivity {
         });
     }
 
-    private void saveDewaterDate() {
+    private void saveDewaterDate()
+    {
         SharedPreferences.Editor editor = getSharedPreferences(Constants.STATS_PREFS, MODE_PRIVATE).edit();
         editor.putString(Constants.DEWATER_TIME_KEY, Common.getCurrentDateTime());
         editor.apply();

@@ -2,7 +2,8 @@ package com.example.smartpool;
 
 import java.util.UUID;
 
-public class Constants {
+public class Constants
+{
     // Bluetooth
     public static final int REQUEST_BLUETOOTH_PERMISSION = 1;
     public static final String DEVICE_ADDRESS = "98:D3:31:F6:A0:71"; // Dirección MAC del módulo Bluetooth

@@ -13,12 +13,14 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.lang.ref.WeakReference;
 
-public class ConfigurationsFilterActivity extends AppCompatActivity {
+public class ConfigurationsFilterActivity extends AppCompatActivity
+{
 
     private BluetoothManager bluetoothManager;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configurations_filter);
 
@@ -29,7 +31,8 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
+        if (actionBar != null)
+        {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -41,28 +44,35 @@ public class ConfigurationsFilterActivity extends AppCompatActivity {
         numberPicker.setMaxValue(Constants.MAX_FILTER_HOURS);
         numberPicker.setValue(Constants.DEFAULT_FILTER_HOURS);
 
-        numberPicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
+        numberPicker.setOnValueChangedListener((picker, oldVal, newVal) ->
+        {
             numberPicker.setValue(newVal);
         });
 
-        incrementButton.setOnClickListener(v -> {
+        incrementButton.setOnClickListener(v ->
+        {
             int currentVal = numberPicker.getValue();
-            if (currentVal < numberPicker.getMaxValue()) {
+            if (currentVal < numberPicker.getMaxValue())
+            {
                 numberPicker.setValue(++currentVal);
             }
         });
 
-        decrementButton.setOnClickListener(v -> {
+        decrementButton.setOnClickListener(v ->
+        {
             int currentVal = numberPicker.getValue();
-            if (currentVal > numberPicker.getMinValue()) {
+            if (currentVal > numberPicker.getMinValue())
+            {
                 numberPicker.setValue(--currentVal);
             }
         });
 
         Button confirmButton = findViewById(R.id.confirmFilter);
-        confirmButton.setOnClickListener(new View.OnClickListener() {
+        confirmButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 int filterHours = numberPicker.getValue();
                 String command = String.format("%s %d",Constants.FILTER_SCHEDULE, Common.hoursToMilliseconds(filterHours));
                 bluetoothManager.sendCommand(command);

@@ -7,17 +7,21 @@ import android.hardware.SensorEventListener;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-public class AccelerometerEventListener implements SensorEventListener {
+public class AccelerometerEventListener implements SensorEventListener
+{
 
     private LinearLayout layout;
 
-    public AccelerometerEventListener(LinearLayout layout) {
+    public AccelerometerEventListener(LinearLayout layout)
+    {
         this.layout = layout;
     }
 
     @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+    public void onSensorChanged(SensorEvent event)
+    {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+        {
             float x = event.values[Constants.X_AXIS];
             float y = event.values[Constants.Y_AXIS];
             float z = event.values[Constants.Z_AXIS];
@@ -36,5 +40,7 @@ public class AccelerometerEventListener implements SensorEventListener {
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    public void onAccuracyChanged(Sensor sensor, int accuracy)
+    {
+    }
 }

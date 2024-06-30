@@ -15,7 +15,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.lang.ref.WeakReference;
 
-public class StatsActivity extends AppCompatActivity {
+public class StatsActivity extends AppCompatActivity
+{
 
     private BluetoothManager bluetoothManager;
 
@@ -25,7 +26,8 @@ public class StatsActivity extends AppCompatActivity {
     private TextView drainingLastTimeTextView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
 
@@ -33,7 +35,8 @@ public class StatsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
+        if (actionBar != null)
+        {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -48,13 +51,16 @@ public class StatsActivity extends AppCompatActivity {
         drainingLastTimeTextView = findViewById(R.id.DrainingLastTimeTextView);
     }
 
-    final Handler bluetoothIn = new Handler(Looper.getMainLooper()) {
+    final Handler bluetoothIn = new Handler(Looper.getMainLooper())
+    {
         @Override
-        public void handleMessage(@NonNull Message msg) {
+        public void handleMessage(@NonNull Message msg)
+        {
             String receivedMessage = (String) msg.obj;
             String[] parts = receivedMessage.split(Constants.MESSAGE_SEPARATOR);
 
-            switch (parts[Constants.MESSAGE_CODE]) {
+            switch (parts[Constants.MESSAGE_CODE])
+            {
                 case Constants.STATS:
                     handleInformation(parts[Constants.WATER_TEMPERATURE], parts[Constants.WATER_DISTANCE]);
                     break;
@@ -67,12 +73,15 @@ public class StatsActivity extends AppCompatActivity {
             }
         }
 
-        private void handleInformation(String temperature, String distance) {
+        private void handleInformation(String temperature, String distance)
+        {
             temperatureTextView.setText(temperature);
 
-            if (Float.parseFloat(distance) < Constants.WATER_LEVEL_TRESHOLD) {
+            if (Float.parseFloat(distance) < Constants.WATER_LEVEL_TRESHOLD)
+            {
                 waterLevelTextView.setText(R.string.waterLevelHigh);
-            } else {
+            } else
+            {
                 waterLevelTextView.setText(R.string.waterLevelLow);
             }
 
@@ -84,18 +93,22 @@ public class StatsActivity extends AppCompatActivity {
             filterLastTimeTextView.setText(String.format("%s%s", getString(R.string.lastFilterTimeLabel), filterLastTime));
         }
 
-        private void handleEvent(String finalState, String currentEvent) {
-            if (isFilteringProcess(finalState)) {
+        private void handleEvent(String finalState, String currentEvent)
+        {
+            if (isFilteringProcess(finalState))
+            {
                 saveFilterDate();
             }
         }
 
-        private boolean isFilteringProcess(String message) {
+        private boolean isFilteringProcess(String message)
+        {
             return message.equals(Constants.STATE_FILTERING_PROCESS_DAY) ||
                     message.equals(Constants.STATE_FILTERING_PROCESS_NIGHT);
         }
 
-        private void saveFilterDate() {
+        private void saveFilterDate()
+        {
             SharedPreferences.Editor editor = getSharedPreferences(Constants.STATS_PREFS, MODE_PRIVATE).edit();
             editor.putString(Constants.FILTER_TIME_KEY, Common.getCurrentDateTime());
             editor.apply();

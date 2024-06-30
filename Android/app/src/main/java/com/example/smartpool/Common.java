@@ -5,15 +5,18 @@ import java.util.Calendar;
 import java.util.Locale;
 
 // Constantes y funciones comunes que se usan en varias clases.
-public class Common {
+public class Common
+{
 
-    public static String getCurrentDateTime() {
+    public static String getCurrentDateTime()
+    {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());
         return sdf.format(calendar.getTime());
     }
 
-    public static long hoursToMilliseconds(int hours) {
+    public static long hoursToMilliseconds(int hours)
+    {
         return hours * Constants.MINUTES * Constants.SECONDS * Constants.MILLISECONDS;
     }
 }
