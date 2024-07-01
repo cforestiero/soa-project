@@ -26,10 +26,13 @@
 #define MEDIUM_LIGHT_INTENSITY 0.5
 #define LOW_LIGHT_INTENSITY 1
 
-#define SERIAL_COMMUNICATION_SPEED 9600
+#define COMMUNICATION_BAUD_RATE 9600
 #define INCHES_TO_CM 58.2
 #define TRIG_TIME 1
-#define LUMINOSITY_RESISTANCE_KOHM 10
+#define LUMINOSITY_SCALING_FACTOR 10
+#define LUMINOSITY_DARKNESS_RESISTANCE_KOHM 10
+#define LUMINOSITY_LIGHT_RESISTANCE_KOHM 10
+#define LUMINOSITY_CALIBRATION_RESISTANCE_KOHM 10
 #define ANALOG_VOLT_MAX_REFERENCE 1024
 #define MAX_VOLTAGE 5.0
 #define VOLTAGE_TO_CELSIUS_OFFSET 0.5
@@ -97,7 +100,6 @@ DallasTemperature sensor(&oneWireBus);
         VARIABLES DE BOUNCE2
 ******************************************************/
 
-const int switchPin = PIN_WATER_PUMP_MODE_SWITCH_SENSOR;
 Bounce debouncer = Bounce();
 
 /*****************************************************
@@ -152,8 +154,10 @@ unsigned long previousWaterPumpTime;
 unsigned long previousForcedLightTime;
 unsigned long currentTime;
 unsigned long timeToStartWaterPump = TIME_TO_START_WATER_PUMP;
-bool lightManuallyChangedRecently;  // Espera luego de modificar manualmente las luces LED, para que se mantenga a pesar de los eventos generados por el sensor de luminosidad
 bool isWaterPumpON;
+
+// Espera luego de modificar manualmente las luces LED, para que se mantenga a pesar de los eventos generados por el sensor de luminosidad
+bool lightManuallyChangedRecently;
 
 // Indice para vector de funciones
 int index = INDEX_INITIALIZATION;
@@ -179,7 +183,7 @@ char commandBTApp;
 
 SoftwareSerial BTSerial(PIN_BLUETOOTH_RX, PIN_BLUETOOTH_TX);
 String nombreBT = "Smart-Pool";
-int bpsBT = SERIAL_COMMUNICATION_SPEED;
+int bpsBT = COMMUNICATION_BAUD_RATE;
 String passBT = "SmartPool";
 String comandoName = "AT+NAME=" + nombreBT;
 String comandoPass = "AT+PSWD=" + passBT;
@@ -199,7 +203,7 @@ void sendCurrentInformation(char command)
       Serial.println("Config filtrado");
       break;
     case 'B':
-      // Evento bt para mandar el estado de la bomba
+      // Evento BT para enviar el estado de la bomba
       BTSerial.println("B," + currentMode);
       break;
     case 'C':
@@ -212,7 +216,7 @@ void sendCurrentInformation(char command)
       BTSerial.println("I, Temperatura del Agua: " + String(waterTemperatureCelsius) + " ºC" + "," + String(waterDistanceCM)) ;
       break;
     case 'L':
-      // Evento bt para mandar el estado de la luz
+      // Evento BT para enviar el estado de la luz
       BTSerial.println("L," + currentStateForBT);
       break;
     case 'W':
@@ -321,12 +325,8 @@ float readTemperature()
 
 float readLuminosity()
 {
-  int lightValue = analogRead(PIN_LUMINOSITY_SENSOR);
-  int lightVoltage = lightValue;                           // Voltage
-  int darknessResistance = LUMINOSITY_RESISTANCE_KOHM;     // Darkness resistance
-  int lightResistance = LUMINOSITY_RESISTANCE_KOHM;        // Light resistance
-  int resistanceCalibration = LUMINOSITY_RESISTANCE_KOHM;  // Calibration resistance
-  float luminosity = ((ANALOG_VOLT_MAX_REFERENCE - lightVoltage) * darknessResistance * LUMINOSITY_RESISTANCE_KOHM) / (lightResistance * resistanceCalibration * lightVoltage);
+  int lightVoltage = analogRead(PIN_LUMINOSITY_SENSOR);
+  float luminosity = ((ANALOG_VOLT_MAX_REFERENCE - lightVoltage) * LUMINOSITY_DARKNESS_RESISTANCE_KOHM * LUMINOSITY_SCALING_FACTOR) / (LUMINOSITY_LIGHT_RESISTANCE_KOHM * LUMINOSITY_CALIBRATION_RESISTANCE_KOHM * lightVoltage);
 
   return luminosity;
 }
@@ -571,7 +571,7 @@ void verifyBTCommand()
         Serial.println(timeToStartWaterPump);
         break;
       case 'B':
-        // Evento bt para mandar el estado de la bomba
+        // Evento BT para enviar el estado de la bomba
         sendCurrentInformation(commandBTApp);
         break;
       case 'C':
@@ -593,11 +593,11 @@ void verifyBTCommand()
         eventType = BLUETOOTH_SIGNAL_SEND_INFORMATION;
         break;
       case 'L':
-        // Evento bt para mandar el estado de las luces
+        // Evento BT para enviar el estado de las luces
         sendCurrentInformation(commandBTApp);
         break;
       case 'W':
-        // Evento bt para modificar el estado de la luz
+        // Evento BT para modificar el estado de la luz
         eventType = BLUETOOTH_SIGNAL_LIGHT_MODE;
         Serial.println("Cambia de modo para apagar o prender luz");
         break;
@@ -643,7 +643,7 @@ void captureEvent()
 void setUpEmbeddedSystem()
 {
   // Inicialización de comunicación serial
-  Serial.begin(SERIAL_COMMUNICATION_SPEED);
+  Serial.begin(COMMUNICATION_BAUD_RATE);
 
   // Inicialización de comunicación con Bluetooth
   BTSerial.begin(bpsBT);
@@ -657,7 +657,7 @@ void setUpEmbeddedSystem()
   pinMode(PIN_PROXIMITY_SENSOR_ECHO, INPUT);
 
   // Inicialización de pines en modo INPUT_PULLUP
-  pinMode(switchPin, INPUT_PULLUP);
+  pinMode(PIN_WATER_PUMP_MODE_SWITCH_SENSOR, INPUT_PULLUP);
 
   // Inicialización de pines en modo OUTPUT
   pinMode(PIN_PROXIMITY_SENSOR_TRIG, OUTPUT);
@@ -667,14 +667,14 @@ void setUpEmbeddedSystem()
   pinMode(PIN_BLUE_LED_ACTUATOR, OUTPUT);
 
   // Inicialización Bounce2 para interruptor
-  debouncer.attach(switchPin); // Asocia el pin al debouncer
+  debouncer.attach(PIN_WATER_PUMP_MODE_SWITCH_SENSOR); // Asocia el pin al debouncer
   debouncer.interval(DEBOUNCE_INTERVAL); // Establece el intervalo de debounce en milisegundos
 
   // Inicialización para AT
   pinMode(PIN_KEY, OUTPUT);
   digitalWrite(PIN_KEY, HIGH);
 
-  // Comando AT con el nombre y pass
+  // Comando AT con el nombre y contraseña
   BTSerial.println(comandoName);
   BTSerial.println(comandoPass);
 
